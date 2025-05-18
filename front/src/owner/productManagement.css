@@ -1,0 +1,147 @@
+/* productManagement.css - Updated with Material UI styling influences */
+
+/* Base styles */
+.product-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Card animation and styling */
+.MuiCard-root {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.MuiCard-root:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Product image styling */
+.MuiCardMedia-root {
+    height: 200px;
+    background-color: #f5f5f5;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Add subtle animation to product cards */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.MuiGrid-item {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Stagger the animation delay for each card */
+.MuiGrid-item:nth-child(1) { animation-delay: 0.05s; }
+.MuiGrid-item:nth-child(2) { animation-delay: 0.1s; }
+.MuiGrid-item:nth-child(3) { animation-delay: 0.15s; }
+.MuiGrid-item:nth-child(4) { animation-delay: 0.2s; }
+.MuiGrid-item:nth-child(5) { animation-delay: 0.25s; }
+.MuiGrid-item:nth-child(6) { animation-delay: 0.3s; }
+
+/* Price tag styling */
+.product-price {
+    font-weight: 700 !important;
+    color: #166d67 !important;
+    font-size: 1.25rem !important;
+}
+
+/* Style for the availability chip */
+.MuiChip-root {
+    font-weight: 600;
+    padding: 0 10px;
+}
+
+/* Dialog styling */
+.MuiDialog-paper {
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.MuiDialogTitle-root {
+    background-color: #166d67;
+    color: white;
+}
+
+/* Loading state spinner */
+.MuiCircularProgress-root {
+    color: #166d67 !important;
+}
+
+/* Filter section enhancements */
+.MuiFormControl-root {
+    margin-bottom: 0 !important;
+}
+
+.MuiSelect-select {
+    padding: 12px 14px !important;
+}
+
+/* Button styling */
+.MuiButton-containedPrimary {
+    background-color: #166d67 !important;
+    transition: all 0.2s ease !important;
+}
+
+.MuiButton-containedPrimary:hover {
+    background-color: #0e4e4a !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Success button */
+.add-btn {
+    background-color: #4CAF50 !important;
+}
+
+.add-btn:hover {
+    background-color: #45a049 !important;
+}
+
+/* Error button */
+.MuiButton-outlinedError {
+    border-color: #e74c3c !important;
+    color: #e74c3c !important;
+    transition: all 0.2s ease !important;
+}
+
+.MuiButton-outlinedError:hover {
+    background-color: rgba(231, 76, 60, 0.08) !important;
+}
+
+/* No products found styling */
+.no-products {
+    padding: 40px;
+    text-align: center;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 600px) {
+    .MuiToolbar-root {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+    
+    .MuiContainer-root {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+    
+    .product-content {
+        padding: 12px !important;
+    }
+    
+    .MuiTypography-h4 {
+        font-size: 1.5rem !important;
+    }
+    
+    .MuiFormControl-root {
+        min-width: 100% !important;
+    }
+}

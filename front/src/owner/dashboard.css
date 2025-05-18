@@ -1,0 +1,296 @@
+/* Modern Dashboard CSS with fixed alignments */
+.dashboard-container {
+  padding: 2rem 0;
+  padding-top: 24px;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  margin-bottom: 32px;
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.dashboard-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background-color: #166d67;
+  border-radius: 2px;
+}
+
+/* Grid layout fixes */
+.MuiGrid-container {
+  width: 100%;
+  margin: 0 !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.MuiGrid-item {
+  display: flex;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 280px; /* Fixed height for consistent card sizes */
+}
+
+/* Fix card layout and alignment */
+.dashboard-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  border-radius: 16px;
+  border-radius: 12px; /* Increased border radius */
+  background: linear-gradient(145deg, #ffffff, #f5f5f5);
+  background-color: white;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1),
+              -5px -5px 15px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* Enhanced shadow */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.15),
+              -8px -8px 20px rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12); /* Stronger hover shadow */
+  background: linear-gradient(145deg, #f5f5f5, #ffffff);
+}
+
+/* Add breathing space to content */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 4rem; /* Increased bottom margin */
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.card-icon {
+  font-size: 3.5rem !important;
+  margin-bottom: 1.5rem;
+  color: #166d67;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover .card-icon {
+  transform: scale(1.1);
+  color: #1a8a82;
+}
+
+/* Typography styles */
+.dashboard-card h2 {
+  margin: 0 0 1rem 0 !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: #2c3e50;
+  width: 100%;
+  transition: color 0.3s ease;
+}
+
+.dashboard-card p {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  color: #7f8c8d;
+  width: 100%;
+  line-height: 1.5;
+  transition: color 0.3s ease;
+}
+
+.dashboard-card:hover h2 {
+  color: #166d67;
+}
+
+.dashboard-card:hover p {
+  color: #34495e;
+}
+
+/* Ensure equal height cards */
+.MuiPaper-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Fix logout button alignment */
+.logout-container {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.logout-container button {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.5rem 2rem;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.logout-container button:hover {
+  background-color: #c82333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .dashboard-card {
+    padding: 2rem 1rem;
+  }
+  
+  .card-icon {
+    font-size: 2.5rem !important;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-container {
+    padding: 1.5rem 0;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+  
+  .dashboard-header h6 {
+    font-size: 1rem;
+  }
+  
+  .MuiGrid-item {
+    padding: 8px !important;
+  }
+  
+  .dashboard-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .card-icon {
+    font-size: 2rem !important;
+    margin-bottom: 0.75rem;
+  }
+  
+  .dashboard-card h2 {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* For the employee dashboard */
+.dashboard-stats {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #166d67;
+}
+
+.stat-label {
+  color: #666;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.recent-activity {
+  margin-top: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.activity-item {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  margin-right: 1rem;
+  color: #166d67;
+}
+
+.activity-time {
+  color: #999;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.MuiGrid-container {
+  width: 100%;
+  margin: 0 !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px; /* Add gap between grid items */
+}
+
+.MuiGrid-item {
+  display: flex;
+  padding: 12px !important;
+  margin-bottom: 12px; /* Additional bottom margin */
+}
+
+/* Enhance the card styles */
+.dashboard-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  border-radius: 12px; /* Increased border radius */
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* Enhanced shadow */
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12); /* Stronger hover shadow */
+}
+
+/* Add breathing space to content */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 4rem; /* Increased bottom margin */
+  position: relative;
+  padding-bottom: 1.5rem;
+}

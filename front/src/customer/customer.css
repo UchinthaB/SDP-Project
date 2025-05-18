@@ -1,0 +1,91 @@
+/* Global Styles */
+body {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f7;
+}
+
+/* Animation for loading */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Juice Bar Dashboard Specific */
+.juice-bar-feature {
+  transition: all 0.3s ease;
+}
+
+.juice-bar-feature:hover {
+  transform: translateY(-5px);
+}
+
+/* Product Card Hover Effect */
+.product-card-hover {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.product-card-hover:hover {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  transform: translateY(-5px);
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  .responsive-heading {
+    font-size: 2rem !important;
+  }
+  
+  .responsive-subheading {
+    font-size: 1.2rem !important;
+  }
+}
+
+/* Pulse Animation for Call-to-Action */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+/* Gradient Backgrounds */
+.primary-gradient {
+  background: linear-gradient(135deg, #4a6fa5 0%, #166d67 100%);
+}
+
+.secondary-gradient {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+}
