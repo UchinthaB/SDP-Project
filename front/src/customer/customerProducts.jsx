@@ -203,16 +203,14 @@ const CustomerProducts = () => {
         }
     };
 
-   const handleAddToCart = async (product) => {
+  const handleAddToCart = async (product) => {
   // Check if user is logged in
   const userData = localStorage.getItem("user");
   
   if (!userData) {
     setSelectedProduct(product);
-    setLoginModalOpen(true); // Changed from setLoginDialogOpen to setLoginModalOpen
-    setSnackbarMessage('Please login to add items to cart');
-    setSnackbarSeverity('error');
-    setOpenSnackbar(true);
+    setLoginDialogOpen(true); // Changed from setLoginModalOpen to setLoginDialogOpen
+    
     return;
   }
   
@@ -241,7 +239,6 @@ const CustomerProducts = () => {
     const result = await response.json();
     if (response.ok) {
       setCartCount(prevCount => prevCount + 1);
-      // Updated success message
       setSnackbarMessage(`${product.name} added to cart successfully!`);
       setSnackbarSeverity('success');
       setOpenSnackbar(true);
@@ -272,7 +269,7 @@ const CustomerProducts = () => {
     
     const handleLoginRedirect = () => {
         setLoginDialogOpen(false);
-        navigate("/login", { 
+        navigate("/", { 
             state: { 
                 from: location.pathname + location.search,
                 productId: selectedProduct?.id
@@ -334,7 +331,7 @@ const CustomerProducts = () => {
                     
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
                         <LocalBarIcon sx={{ mr: 1 }} />
-                        {isMobile ? "Juice Bar" : "Fresh Juice Bar"}
+                        {isMobile ? "Juice Bar" : "Juice Bar - University of Kelaniya"}
                     </Typography>
                     
                     {!isMobile && (
@@ -544,9 +541,15 @@ const CustomerProducts = () => {
 
             {/* Login Dialog */}
             <Dialog
-                open={loginDialogOpen}
-                onClose={() => setLoginDialogOpen(false)}
-            >
+    open={loginDialogOpen}
+    onClose={() => setLoginDialogOpen(false)}
+    PaperProps={{
+        sx: {
+            height: 'auto',  // or set specific height like '200px'
+            maxHeight: '300px' // limits maximum height
+        }
+    }}
+>
                 <DialogTitle>Login Required</DialogTitle>
                 <DialogContent>
                     <DialogContentText>

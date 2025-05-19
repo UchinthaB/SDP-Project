@@ -395,6 +395,9 @@ return (
         onClose={() => setOrderDetailsOpen(false)}
         fullWidth
         maxWidth="md"
+        // sx={{
+        //   backgroundColor: 'white',
+        // }}
       >
         {selectedOrder && (
           <>
