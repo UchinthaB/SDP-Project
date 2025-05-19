@@ -55,6 +55,7 @@ import {
   Pie, 
   Cell 
 } from "recharts";
+import OwnerSidebar from "./OwnerSidebar";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#6B88FF'];
 
@@ -98,7 +99,7 @@ const SalesReport = () => {
       const token = localStorage.getItem("token");
       
       if (!token) {
-        navigate("/login");
+        navigate("/");
         return;
       }
       
@@ -230,496 +231,489 @@ const SalesReport = () => {
     return [];
   };
 
-  return (
-    <div className="sales-report-container">
-      <Container maxWidth="xl">
-        <div className="report-header">
-          <h1>Sales Reports</h1>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={() => navigate('/owner/dashboard')}
-          >
-            Back to Dashboard
-          </Button>
-        </div>
+return (
+  <OwnerSidebar>
+    <Box className="sales-report-container">
+      <div className="report-header">
+        <h1>Sales Reports</h1>
+        {/* Removed the "Back to Dashboard" button */}
+      </div>
 
-        <Paper className="report-tabs">
-          <Tabs
-            value={reportType}
-            onChange={handleReportTypeChange}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="fullWidth"
-          >
-            <Tab value="daily" label="Daily" icon={<CalendarToday />} />
-            <Tab value="weekly" label="Weekly" icon={<DateRange />} />
-            <Tab value="monthly" label="Monthly" icon={<BarChart />} />
-            <Tab value="custom" label="Custom Range" icon={<DateRange />} />
-          </Tabs>
-          
-          <div className="filter-section">
-            {/* Daily Report Filter */}
-            {reportType === "daily" && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    id="date"
-                    label="Select Date"
-                    type="date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                    fullWidth
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={2}>
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
-                    onClick={handleGenerateReport}
-                    startIcon={<Refresh />}
-                    fullWidth
-                  >
-                    Generate
-                  </Button>
-                </Grid>
-              </Grid>
-            )}
-            
-            {/* Monthly Report Filter */}
-            {reportType === "monthly" && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4} md={3}>
-                  <FormControl fullWidth>
-                    <InputLabel id="month-select-label">Month</InputLabel>
-                    <Select
-                      labelId="month-select-label"
-                      id="month-select"
-                      value={selectedMonth}
-                      label="Month"
-                      onChange={handleMonthChange}
-                    >
-                      {months.map((month) => (
-                        <MenuItem key={month.value} value={month.value}>
-                          {month.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={4} md={3}>
-                  <FormControl fullWidth>
-                    <InputLabel id="year-select-label">Year</InputLabel>
-                    <Select
-                      labelId="year-select-label"
-                      id="year-select"
-                      value={selectedYear}
-                      label="Year"
-                      onChange={handleYearChange}
-                    >
-                      {getYearOptions().map((year) => (
-                        <MenuItem key={year} value={year}>
-                          {year}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={4} md={2}>
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
-                    onClick={handleGenerateReport}
-                    startIcon={<Refresh />}
-                    fullWidth
-                  >
-                    Generate
-                  </Button>
-                </Grid>
-              </Grid>
-            )}
-            
-            {/* Weekly Report Filter */}
-            {reportType === "weekly" && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4} md={3}>
-                  <TextField
-                    id="start-date"
-                    label="Start Date"
-                    type="date"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                    fullWidth
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4} md={3}>
-                  <TextField
-                    id="end-date"
-                    label="End Date"
-                    type="date"
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    fullWidth
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4} md={2}>
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
-                    onClick={handleGenerateReport}
-                    startIcon={<Refresh />}
-                    fullWidth
-                  >
-                    Generate
-                  </Button>
-                </Grid>
-              </Grid>
-            )}
-            
-            {/* Custom Range Filter */}
-            {reportType === "custom" && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4} md={3}>
-                  <TextField
-                    id="custom-start-date"
-                    label="Start Date"
-                    type="date"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                    fullWidth
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4} md={3}>
-                  <TextField
-                    id="custom-end-date"
-                    label="End Date"
-                    type="date"
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    fullWidth
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4} md={2}>
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
-                    onClick={handleGenerateReport}
-                    startIcon={<Refresh />}
-                    fullWidth
-                  >
-                    Generate
-                  </Button>
-                </Grid>
-              </Grid>
-            )}
-          </div>
-        </Paper>
+      <Paper className="report-tabs">
+        <Tabs
+          value={reportType}
+          onChange={handleReportTypeChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+        >
+          <Tab value="daily" label="Daily" icon={<CalendarToday />} />
+          <Tab value="weekly" label="Weekly" icon={<DateRange />} />
+          <Tab value="monthly" label="Monthly" icon={<BarChart />} />
+          <Tab value="custom" label="Custom Range" icon={<DateRange />} />
+        </Tabs>
         
-        {loading ? (
-          <div className="loading-container">
-            <CircularProgress size={60} />
-          </div>
-        ) : error ? (
-          <Alert severity="error" sx={{ mb: 4 }}>
-            {error}
-          </Alert>
-        ) : !reportData ? (
-          <div className="empty-message">
-            <p>Select report parameters and click Generate to view data</p>
-          </div>
-        ) : (
-          <Box>
-            {/* Summary Cards */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-              <Grid item xs={12} sm={6} md={3}>
-                <Card className={`stat-card primary-card`}>
-                  <CardContent>
-                    <Typography color="inherit" variant="subtitle2" sx={{ opacity: 0.7 }}>
-                      Total Revenue
-                    </Typography>
-                    <Typography color="inherit" variant="h4" component="div" sx={{ my: 1 }}>
-                      {formatCurrency(reportData.summary?.total_revenue || 0)}
-                    </Typography>
-                    {reportType === 'monthly' && reportData.comparison && (
-                      <div className={reportData.comparison.revenueGrowth > 0 ? 'growth-positive' : 'growth-negative'}>
-                        {reportData.comparison.revenueGrowth > 0 ? (
-                          <ArrowUpward className="growth-icon" />
-                        ) : (
-                          <ArrowDownward className="growth-icon" />
-                        )}
-                        <span>
-                          {Math.abs(reportData.comparison.revenueGrowth).toFixed(2)}% from previous month
-                        </span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+        <div className="filter-section">
+          {/* Daily Report Filter */}
+          {reportType === "daily" && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  id="date"
+                  label="Select Date"
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
               </Grid>
-              
-              <Grid item xs={12} sm={6} md={3}>
-                <Card className={`stat-card success-card`}>
-                  <CardContent>
-                    <Typography color="inherit" variant="subtitle2" sx={{ opacity: 0.7 }}>
-                      Total Orders
-                    </Typography>
-                    <Typography color="inherit" variant="h4" component="div" sx={{ my: 1 }}>
-                      {reportData.summary?.total_orders || 0}
-                    </Typography>
-                    <Typography color="inherit" variant="body2">
-                      {reportType === 'daily' 
-                        ? `For ${new Date(reportData.date).toLocaleDateString()}`
-                        : reportType === 'monthly'
-                          ? `For ${months.find(m => m.value === parseInt(reportData.month))?.label} ${reportData.year}`
-                          : `From ${new Date(reportData.startDate).toLocaleDateString()} to ${new Date(reportData.endDate).toLocaleDateString()}`
-                      }
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              
-              <Grid item xs={12} sm={6} md={3}>
-                <Card className={`stat-card info-card`}>
-                  <CardContent>
-                    <Typography color="inherit" variant="subtitle2" sx={{ opacity: 0.7 }}>
-                      Average Order Value
-                    </Typography>
-                    <Typography color="inherit" variant="h4" component="div" sx={{ my: 1 }}>
-                      {reportData.summary?.total_orders > 0 
-                        ? formatCurrency(reportData.summary.total_revenue / reportData.summary.total_orders) 
-                        : formatCurrency(0)
-                      }
-                    </Typography>
-                    <Typography color="inherit" variant="body2">
-                      Per order
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              
-              <Grid item xs={12} sm={6} md={3}>
-                <Card className={`stat-card warning-card`}>
-                  <CardContent>
-                    <Typography color="inherit" variant="subtitle2" sx={{ opacity: 0.7 }}>
-                      {reportType === 'daily' ? 'Juice Bars Active' : 'Peak Sales'}
-                    </Typography>
-                    <Typography color="inherit" variant="h4" component="div" sx={{ my: 1 }}>
-                      {reportType === 'daily' 
-                        ? reportData.salesByLocation?.length || 0
-                        : prepareSalesByDayData().length > 0 
-                          ? prepareSalesByDayData().reduce((max, item) => 
-                              item.revenue > max.revenue ? item : max, 
-                              { revenue: 0 }
-                            ).name
-                          : 'N/A'
-                      }
-                    </Typography>
-                    <Typography color="inherit" variant="body2">
-                      {reportType === 'daily' 
-                        ? 'Locations with sales' 
-                        : 'Day with highest sales'
-                      }
-                    </Typography>
-                  </CardContent>
-                </Card>
+              <Grid item xs={12} sm={6} md={2}>
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  onClick={handleGenerateReport}
+                  startIcon={<Refresh />}
+                  fullWidth
+                >
+                  Generate
+                </Button>
               </Grid>
             </Grid>
+          )}
+          
+          {/* Monthly Report Filter */}
+          {reportType === "monthly" && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel id="month-select-label">Month</InputLabel>
+                  <Select
+                    labelId="month-select-label"
+                    id="month-select"
+                    value={selectedMonth}
+                    label="Month"
+                    onChange={handleMonthChange}
+                  >
+                    {months.map((month) => (
+                      <MenuItem key={month.value} value={month.value}>
+                        {month.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel id="year-select-label">Year</InputLabel>
+                  <Select
+                    labelId="year-select-label"
+                    id="year-select"
+                    value={selectedYear}
+                    label="Year"
+                    onChange={handleYearChange}
+                  >
+                    {getYearOptions().map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4} md={2}>
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  onClick={handleGenerateReport}
+                  startIcon={<Refresh />}
+                  fullWidth
+                >
+                  Generate
+                </Button>
+              </Grid>
+            </Grid>
+          )}
+          
+          {/* Weekly Report Filter */}
+          {reportType === "weekly" && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4} md={3}>
+                <TextField
+                  id="start-date"
+                  label="Start Date"
+                  type="date"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={3}>
+                <TextField
+                  id="end-date"
+                  label="End Date"
+                  type="date"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={2}>
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  onClick={handleGenerateReport}
+                  startIcon={<Refresh />}
+                  fullWidth
+                >
+                  Generate
+                </Button>
+              </Grid>
+            </Grid>
+          )}
+          
+          {/* Custom Range Filter */}
+          {reportType === "custom" && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4} md={3}>
+                <TextField
+                  id="custom-start-date"
+                  label="Start Date"
+                  type="date"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={3}>
+                <TextField
+                  id="custom-end-date"
+                  label="End Date"
+                  type="date"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={2}>
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  onClick={handleGenerateReport}
+                  startIcon={<Refresh />}
+                  fullWidth
+                >
+                  Generate
+                </Button>
+              </Grid>
+            </Grid>
+          )}
+        </div>
+      </Paper>
+      
+      {loading ? (
+        <div className="loading-container">
+          <CircularProgress size={60} />
+        </div>
+      ) : error ? (
+        <Alert severity="error" sx={{ mb: 4 }}>
+          {error}
+        </Alert>
+      ) : !reportData ? (
+        <div className="empty-message">
+          <p>Select report parameters and click Generate to view data</p>
+        </div>
+      ) : (
+        <Box>
+          {/* Summary Cards */}
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card className={`stat-card primary-card`}>
+                <CardContent>
+                  <Typography color="inherit" variant="subtitle2" sx={{ opacity: 0.7 }}>
+                    Total Revenue
+                  </Typography>
+                  <Typography color="inherit" variant="h4" component="div" sx={{ my: 1 }}>
+                    {formatCurrency(reportData.summary?.total_revenue || 0)}
+                  </Typography>
+                  {reportType === 'monthly' && reportData.comparison && (
+                    <div className={reportData.comparison.revenueGrowth > 0 ? 'growth-positive' : 'growth-negative'}>
+                      {reportData.comparison.revenueGrowth > 0 ? (
+                        <ArrowUpward className="growth-icon" />
+                      ) : (
+                        <ArrowDownward className="growth-icon" />
+                      )}
+                      <span>
+                        {Math.abs(reportData.comparison.revenueGrowth).toFixed(2)}% from previous month
+                      </span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
             
-            {/* Charts */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-              {/* Sales Trend Chart */}
-              <Grid item xs={12} md={8}>
-                <div className="chart-container">
-                  <div className="chart-header">
-                    <h2>
-                      {reportType === 'daily' 
-                        ? "Sales by Hour" 
-                        : reportType === 'monthly' 
-                          ? "Daily Sales for the Month"
-                          : "Sales Trend"}
-                    </h2>
-                    <p>
-                      {reportType === 'daily' 
-                        ? `For ${new Date(reportData.date).toLocaleDateString()}`
-                        : reportType === 'monthly'
-                          ? `${months.find(m => m.value === parseInt(reportData.month))?.label} ${reportData.year}`
-                          : `From ${new Date(reportData.startDate).toLocaleDateString()} to ${new Date(reportData.endDate).toLocaleDateString()}`
-                      }
-                    </p>
-                  </div>
-                  <div className="chart-content">
+            <Grid item xs={12} sm={6} md={3}>
+              <Card className={`stat-card success-card`}>
+                <CardContent>
+                  <Typography color="inherit" variant="subtitle2" sx={{ opacity: 0.7 }}>
+                    Total Orders
+                  </Typography>
+                  <Typography color="inherit" variant="h4" component="div" sx={{ my: 1 }}>
+                    {reportData.summary?.total_orders || 0}
+                  </Typography>
+                  <Typography color="inherit" variant="body2">
+                    {reportType === 'daily' 
+                      ? `For ${new Date(reportData.date).toLocaleDateString()}`
+                      : reportType === 'monthly'
+                        ? `For ${months.find(m => m.value === parseInt(reportData.month))?.label} ${reportData.year}`
+                        : `From ${new Date(reportData.startDate).toLocaleDateString()} to ${new Date(reportData.endDate).toLocaleDateString()}`
+                    }
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={3}>
+              <Card className={`stat-card info-card`}>
+                <CardContent>
+                  <Typography color="inherit" variant="subtitle2" sx={{ opacity: 0.7 }}>
+                    Average Order Value
+                  </Typography>
+                  <Typography color="inherit" variant="h4" component="div" sx={{ my: 1 }}>
+                    {reportData.summary?.total_orders > 0 
+                      ? formatCurrency(reportData.summary.total_revenue / reportData.summary.total_orders) 
+                      : formatCurrency(0)
+                    }
+                  </Typography>
+                  <Typography color="inherit" variant="body2">
+                    Per order
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={3}>
+              <Card className={`stat-card warning-card`}>
+                <CardContent>
+                  <Typography color="inherit" variant="subtitle2" sx={{ opacity: 0.7 }}>
+                    {reportType === 'daily' ? 'Juice Bars Active' : 'Peak Sales'}
+                  </Typography>
+                  <Typography color="inherit" variant="h4" component="div" sx={{ my: 1 }}>
+                    {reportType === 'daily' 
+                      ? reportData.salesByLocation?.length || 0
+                      : prepareSalesByDayData().length > 0 
+                        ? prepareSalesByDayData().reduce((max, item) => 
+                            item.revenue > max.revenue ? item : max, 
+                            { revenue: 0 }
+                          ).name
+                        : 'N/A'
+                    }
+                  </Typography>
+                  <Typography color="inherit" variant="body2">
+                    {reportType === 'daily' 
+                      ? 'Locations with sales' 
+                      : 'Day with highest sales'
+                    }
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+          
+          {/* Charts */}
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {/* Sales Trend Chart */}
+            <Grid item xs={12} md={8}>
+              <div className="chart-container">
+                <div className="chart-header">
+                  <h2>
+                    {reportType === 'daily' 
+                      ? "Sales by Hour" 
+                      : reportType === 'monthly' 
+                        ? "Daily Sales for the Month"
+                        : "Sales Trend"}
+                  </h2>
+                  <p>
+                    {reportType === 'daily' 
+                      ? `For ${new Date(reportData.date).toLocaleDateString()}`
+                      : reportType === 'monthly'
+                        ? `${months.find(m => m.value === parseInt(reportData.month))?.label} ${reportData.year}`
+                        : `From ${new Date(reportData.startDate).toLocaleDateString()} to ${new Date(reportData.endDate).toLocaleDateString()}`
+                    }
+                  </p>
+                </div>
+                <div className="chart-content">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsBarChart
+                      data={prepareSalesByDayData()}
+                      margin={{
+                        top: 20,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis yAxisId="left" orientation="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <RechartsTooltip />
+                      <Legend />
+                      <Bar yAxisId="left" dataKey="revenue" name="Revenue (Rs)" fill="#8884d8" />
+                      <Bar yAxisId="right" dataKey="orders" name="Orders" fill="#82ca9d" />
+                    </RechartsBarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </Grid>
+            
+            {/* Sales by Location Pie Chart */}
+            <Grid item xs={12} md={4}>
+              <div className="chart-container">
+                <div className="chart-header">
+                  <h2>Sales by Location</h2>
+                  <p>Revenue by Juice Bar</p>
+                </div>
+                <div className="chart-content">
+                  {reportData.salesByLocation?.length === 0 ? (
+                    <div className="empty-message">
+                      <p>No location data available</p>
+                    </div>
+                  ) : (
                     <ResponsiveContainer width="100%" height="100%">
-                      <RechartsBarChart
-                        data={prepareSalesByDayData()}
-                        margin={{
-                          top: 20,
-                          right: 30,
-                          left: 20,
-                          bottom: 5,
-                        }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis yAxisId="left" orientation="left" />
-                        <YAxis yAxisId="right" orientation="right" />
-                        <RechartsTooltip />
-                        <Legend />
-                        <Bar yAxisId="left" dataKey="revenue" name="Revenue (Rs)" fill="#8884d8" />
-                        <Bar yAxisId="right" dataKey="orders" name="Orders" fill="#82ca9d" />
-                      </RechartsBarChart>
+                      <PieChart>
+                        <Pie
+                          data={prepareSalesByLocationData()}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {prepareSalesByLocationData().map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip formatter={(value) => formatCurrency(value)} />
+                      </PieChart>
                     </ResponsiveContainer>
-                  </div>
+                  )}
                 </div>
-              </Grid>
-              
-              {/* Sales by Location Pie Chart */}
-              <Grid item xs={12} md={4}>
-                <div className="chart-container">
-                  <div className="chart-header">
-                    <h2>Sales by Location</h2>
-                    <p>Revenue by Juice Bar</p>
-                  </div>
-                  <div className="chart-content">
-                    {reportData.salesByLocation?.length === 0 ? (
-                      <div className="empty-message">
-                        <p>No location data available</p>
-                      </div>
-                    ) : (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={prepareSalesByLocationData()}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            {prepareSalesByLocationData().map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <RechartsTooltip formatter={(value) => formatCurrency(value)} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    )}
-                  </div>
-                </div>
-              </Grid>
+              </div>
             </Grid>
-            
-            {/* Best Selling Products Table */}
-            <div className="table-card">
-              <div className="table-header">
-                <h2>Best Selling Products</h2>
-                <p>Products ranked by quantity sold</p>
-              </div>
-              <CardContent>
-                {reportData.bestSellers?.length === 0 ? (
-                  <div className="empty-message">
-                    <p>No sales data available for this period</p>
-                  </div>
-                ) : (
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Rank</TableCell>
-                          <TableCell>Product</TableCell>
-                          <TableCell>Juice Bar</TableCell>
-                          <TableCell align="right">Unit Price</TableCell>
-                          <TableCell align="right">Quantity Sold</TableCell>
-                          <TableCell align="right">Total Sales</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {reportData.bestSellers?.map((product, index) => (
-                          <TableRow key={`${product.product_id}-${product.juice_bar_id}`} className={index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}>
-                            <TableCell>{index + 1}</TableCell>
-                            <TableCell>{product.product_name}</TableCell>
-                            <TableCell>{product.juice_bar_name}</TableCell>
-                            <TableCell align="right">{formatCurrency(product.price)}</TableCell>
-                            <TableCell align="right">{product.total_quantity}</TableCell>
-                            <TableCell align="right">{formatCurrency(product.total_sales)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                )}
-              </CardContent>
+          </Grid>
+          
+          {/* Best Selling Products Table */}
+          <div className="table-card">
+            <div className="table-header">
+              <h2>Best Selling Products</h2>
+              <p>Products ranked by quantity sold</p>
             </div>
-            
-            {/* Sales by Location Table */}
-            <div className="table-card">
-              <div className="table-header">
-                <h2>Sales by Location</h2>
-                <p>Detailed revenue data for each juice bar</p>
-              </div>
-              <CardContent>
-                {reportData.salesByLocation?.length === 0 ? (
-                  <div className="empty-message">
-                    <p>No location data available for this period</p>
-                  </div>
-                ) : (
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Juice Bar</TableCell>
-                          <TableCell align="right">Total Orders</TableCell>
-                          <TableCell align="right">Total Revenue</TableCell>
-                          <TableCell align="right">Average Order Value</TableCell>
-                          <TableCell align="right">% of Total Revenue</TableCell>
+            <CardContent>
+              {reportData.bestSellers?.length === 0 ? (
+                <div className="empty-message">
+                  <p>No sales data available for this period</p>
+                </div>
+              ) : (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Rank</TableCell>
+                        <TableCell>Product</TableCell>
+                        <TableCell>Juice Bar</TableCell>
+                        <TableCell align="right">Unit Price</TableCell>
+                        <TableCell align="right">Quantity Sold</TableCell>
+                        <TableCell align="right">Total Sales</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {reportData.bestSellers?.map((product, index) => (
+                        <TableRow key={`${product.product_id}-${product.juice_bar_id}`} className={index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{product.product_name}</TableCell>
+                          <TableCell>{product.juice_bar_name}</TableCell>
+                          <TableCell align="right">{formatCurrency(product.price)}</TableCell>
+                          <TableCell align="right">{product.total_quantity}</TableCell>
+                          <TableCell align="right">{formatCurrency(product.total_sales)}</TableCell>
                         </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {reportData.salesByLocation?.map((location, index) => (
-                          <TableRow key={location.juice_bar_id} className={index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}>
-                            <TableCell>{location.juice_bar_name}</TableCell>
-                            <TableCell align="right">{location.total_orders}</TableCell>
-                            <TableCell align="right">{formatCurrency(location.total_revenue)}</TableCell>
-                            <TableCell align="right">
-                              {location.total_orders > 0 
-                                ? formatCurrency(location.total_revenue / location.total_orders)
-                                : formatCurrency(0)
-                              }
-                            </TableCell>
-                            <TableCell align="right">
-                              {reportData.summary?.total_revenue > 0 
-                                ? `${((location.total_revenue / reportData.summary.total_revenue) * 100).toFixed(2)}%`
-                                : '0%'
-                              }
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                )}
-              </CardContent>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </CardContent>
+          </div>
+          
+          {/* Sales by Location Table */}
+          <div className="table-card">
+            <div className="table-header">
+              <h2>Sales by Location</h2>
+              <p>Detailed revenue data for each juice bar</p>
             </div>
-          </Box>
-        )}
-      </Container>
-    </div>
-  );
-};
+            <CardContent>
+              {reportData.salesByLocation?.length === 0 ? (
+                <div className="empty-message">
+                  <p>No location data available for this period</p>
+                </div>
+              ) : (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Juice Bar</TableCell>
+                        <TableCell align="right">Total Orders</TableCell>
+                        <TableCell align="right">Total Revenue</TableCell>
+                        <TableCell align="right">Average Order Value</TableCell>
+                        <TableCell align="right">% of Total Revenue</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {reportData.salesByLocation?.map((location, index) => (
+                        <TableRow key={location.juice_bar_id} className={index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}>
+                          <TableCell>{location.juice_bar_name}</TableCell>
+                          <TableCell align="right">{location.total_orders}</TableCell>
+                          <TableCell align="right">{formatCurrency(location.total_revenue)}</TableCell>
+                          <TableCell align="right">
+                            {location.total_orders > 0 
+                              ? formatCurrency(location.total_revenue / location.total_orders)
+                              : formatCurrency(0)
+                            }
+                          </TableCell>
+                          <TableCell align="right">
+                            {reportData.summary?.total_revenue > 0 
+                              ? `${((location.total_revenue / reportData.summary.total_revenue) * 100).toFixed(2)}%`
+                              : '0%'
+                            }
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </CardContent>
+          </div>
+        </Box>
+      )}
+    </Box>
+  </OwnerSidebar>
+);}
 
 export default SalesReport;

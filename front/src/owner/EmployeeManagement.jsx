@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./employeeManagement.css";
+import OwnerSidebar from "./OwnerSidebar";
+import { Box } from "@mui/material";
 
 const EmployeeManagement = () => {
     const [employees, setEmployees] = useState([]);
@@ -8,10 +10,28 @@ const EmployeeManagement = () => {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         fetchEmployees();
     }, []);
+
+    useEffect(() => {
+            // Check if user is logged in and is an owner
+            const userData = localStorage.getItem("user");
+            if (!userData) {
+              navigate("/");
+              return;
+            }
+        
+            const user = JSON.parse(userData);
+            if (user.user.role !== "owner") {
+              navigate("/");
+              return;
+            }
+        
+            setUser(user.user);
+          }, [navigate]);
 
     const fetchEmployees = async () => {
         try {
@@ -73,20 +93,17 @@ const EmployeeManagement = () => {
         }
     };
 
-    return (
-        <div className="employee-management-container">
+
+
+   return (
+    <OwnerSidebar>
+        <Box className="employee-management-container">
             <div className="page-header">
                 <div>
                     <h1>Employee Management</h1>
                     <p>Manage your juice bar employees</p>
                 </div>
                 <div className="action-buttons">
-                    <button 
-                        className="btn-secondary" 
-                        onClick={() => navigate("/owner/dashboard")}
-                    >
-                        Back to Dashboard
-                    </button>
                     <button 
                         className="btn-primary" 
                         onClick={handleAddEmployee}
@@ -159,8 +176,8 @@ const EmployeeManagement = () => {
                     ))}
                 </div>
             )}
-        </div>
-    );
-};
+        </Box>
+    </OwnerSidebar>
+)};
 
-export default EmployeeManagement;
+export default EmployeeManagement;  

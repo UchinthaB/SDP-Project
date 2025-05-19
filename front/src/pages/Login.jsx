@@ -39,7 +39,7 @@ const Login = () => {
         // Redirect based on user role
         const userRole = data.user.role
         if (userRole === 'customer') {
-          navigate('/customer/dashboard')  // Updated this line to use the correct path
+          navigate('/#locations')  // Updated this line to use the correct path
         }
         else if (userRole === 'employee') {
         navigate('/employee/dashboard')

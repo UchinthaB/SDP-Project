@@ -189,7 +189,9 @@ const Cart = () => {
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
+
   
+
   const mobileMenu = (
     <Drawer
       anchor="left"
@@ -380,12 +382,14 @@ const Cart = () => {
               Add some delicious juices to get started!
             </Typography>
             <Button 
-              variant="contained" 
-              onClick={() => navigate("/customer/dashboard")}
-              size="large"
-            >
-              Browse Products
-            </Button>
+  variant="contained" 
+  onClick={() => {
+    navigate("/#locations");
+  }}
+  size="large"
+>
+  Browse Products
+</Button>
           </Paper>
         ) : (
           <Grid container spacing={4}>
@@ -469,7 +473,7 @@ const Cart = () => {
                   variant="outlined" 
                   fullWidth 
                   size="large"
-                  onClick={() => navigate("/customer/dashboard")}
+                  onClick={() => navigate("/#locations")}
                   sx={{ mt: 2 }}
                 >
                   Continue Shopping

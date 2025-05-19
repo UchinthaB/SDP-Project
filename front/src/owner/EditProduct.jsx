@@ -15,6 +15,7 @@ const EditProduct = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const fetchProductDetails = async () => {
@@ -47,6 +48,24 @@ const EditProduct = () => {
             fetchProductDetails();
         }
     }, [id]);
+
+
+    useEffect(() => {
+        // Check if user is logged in and is an owner
+        const userData = localStorage.getItem("user");
+        if (!userData) {
+          navigate("/");
+          return;
+        }
+    
+        const user = JSON.parse(userData);
+        if (user.user.role !== "owner") {
+          navigate("/");
+          return;
+        }
+    
+        setUser(user.user);
+      }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

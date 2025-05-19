@@ -20,12 +20,10 @@ import {
   DialogActions,
   Snackbar,
   Alert,
-  AppBar,
-  Toolbar,
-  Select,
-  MenuItem,
   FormControl,
   InputLabel,
+  Select,
+  MenuItem,
   Zoom,
   Fade
 } from "@mui/material";
@@ -34,12 +32,10 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Refresh as RefreshIcon,
-  LocalCafe as LocalCafeIcon,
-  Logout as LogoutIcon,
-  ArrowBack as ArrowBackIcon
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
 import "./productManagement.css";
+import OwnerSidebar from "./OwnerSidebar";
 
 // Styled components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -75,6 +71,7 @@ const ProductManagement = () => {
         severity: 'success'
     });
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         // Check if user is logged in
@@ -93,6 +90,25 @@ const ProductManagement = () => {
 
         fetchData();
     }, [navigate, selectedJuiceBar]);
+
+
+
+    useEffect(() => {
+        // Check if user is logged in and is an owner
+        const userData = localStorage.getItem("user");
+        if (!userData) {
+          navigate("/");
+          return;
+        }
+    
+        const user = JSON.parse(userData);
+        if (user.user.role !== "owner") {
+          navigate("/");
+          return;
+        }
+    
+        setUser(user.user);
+      }, [navigate]);
 
     const fetchData = async () => {
         try {
@@ -185,28 +201,8 @@ const ProductManagement = () => {
     };
 
     return (
-        <Box sx={{ backgroundColor: '#f5f5f3', minHeight: '100vh', pb: 4 }}>
-            {/* App Bar */}
-            <AppBar position="sticky" sx={{ backgroundColor: '#166d67' }}>
-                <Toolbar>
-                    <IconButton
-                        edge="start"
-                        color="inherit"
-                        onClick={() => navigate('/owner/dashboard')}
-                        sx={{ mr: 2 }}
-                    >
-                        <ArrowBackIcon />
-                    </IconButton>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-                        <LocalCafeIcon sx={{ mr: 1 }} /> Product Management
-                    </Typography>
-                    <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
-                        Logout
-                    </Button>
-                </Toolbar>
-            </AppBar>
-
-            <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <OwnerSidebar>
+            <Container maxWidth="lg">
                 {/* Page Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                     <Typography variant="h4" component="h1">Product Catalog</Typography>
@@ -395,7 +391,7 @@ const ProductManagement = () => {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-        </Box>
+        </OwnerSidebar>
     );
 };
 

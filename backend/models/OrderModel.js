@@ -141,22 +141,32 @@ const getPendingOrders = async () => {
 
 // Generate a unique token number
 const generateTokenNumber = async () => {
-    // Get the max token number from the current day
-    const [rows] = await db.execute(`
-        SELECT MAX(token_number) AS max_token
-        FROM orders
-        WHERE DATE(created_at) = CURRENT_DATE
-    `);
-    
-    let maxToken = rows[0].max_token || 0;
-    
-    // If it's a string, convert to number
-    if (typeof maxToken === 'string') {
-        maxToken = parseInt(maxToken, 10) || 0;
+    try {
+        // Start transaction
+        await db.execute('START TRANSACTION');
+        
+        // Get or create today's sequence
+        const [result] = await db.execute(`
+            INSERT INTO token_sequences (date, last_token) 
+            VALUES (CURRENT_DATE, 1)
+            ON DUPLICATE KEY UPDATE last_token = last_token + 1
+        `);
+        
+        // Get the updated token
+        const [rows] = await db.execute(`
+            SELECT last_token FROM token_sequences
+            WHERE date = CURRENT_DATE
+        `);
+        
+        // Commit transaction
+        await db.execute('COMMIT');
+        
+        return rows[0].last_token.toString();
+    } catch (error) {
+        await db.execute('ROLLBACK');
+        console.error('Error generating token number:', error);
+        return Date.now().toString();
     }
-    
-    // Increment by 1 for the new token
-    return (maxToken + 1).toString();
 };
 
 const cancelOrder = async (orderId) => {

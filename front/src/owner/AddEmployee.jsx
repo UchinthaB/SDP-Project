@@ -14,6 +14,7 @@ const AddEmployee = () => {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
 
     // Add authentication check
     useEffect(() => {
@@ -24,7 +25,7 @@ const AddEmployee = () => {
             // If not logged in or not an owner, redirect to login
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-            navigate("/login");
+            navigate("/");
         }
     }, [navigate]);
 

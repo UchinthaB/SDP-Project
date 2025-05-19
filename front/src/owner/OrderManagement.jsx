@@ -35,6 +35,7 @@ import {
   ArrowBack as ArrowBackIcon
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
+import OwnerSidebar from "./OwnerSidebar";
 
 // Styled components
 const OrderStatusChip = styled(Chip)(({ theme, status }) => {
@@ -82,6 +83,8 @@ const OrderManagement = () => {
   
   const navigate = useNavigate();
 
+ 
+
   // Fetch all pending orders
   const fetchOrders = async () => {
     try {
@@ -112,7 +115,7 @@ const OrderManagement = () => {
     // Check if user is logged in
     const userData = localStorage.getItem("user");
     if (!userData) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 
@@ -250,28 +253,11 @@ const OrderManagement = () => {
     navigate("/login");
   };
 
-  return (
-    <Box sx={{ backgroundColor: '#f5f5f3', minHeight: '100vh', pb: 4 }}>
-      {/* App Bar */}
-      <AppBar position="sticky" sx={{ backgroundColor: '#166d67' }}>
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => navigate('/owner/dashboard')}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-            <LocalCafeIcon sx={{ mr: 1 }} /> Order Management
-          </Typography>
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
-
+return (
+  <OwnerSidebar>
+    <Box className="order-management-container" sx={{ backgroundColor: '#f5f5f3', minHeight: '100vh', pb: 4 }}>
+      {/* App Bar - Removed since navigation will be handled by OwnerSidebar */}
+      
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         {/* Page Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -544,7 +530,7 @@ const OrderManagement = () => {
         </Alert>
       </Snackbar>
     </Box>
-  );
-};
-
+  </OwnerSidebar>
+);
+}
 export default OrderManagement;

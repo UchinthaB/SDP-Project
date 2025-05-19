@@ -10,6 +10,7 @@ const AddProduct = () => {
     const [isAvailable, setIsAvailable] = useState(true);
     const [juiceBars, setJuiceBars] = useState([]);
    const [selectedJuiceBar, setSelectedJuiceBar] = useState(""); 
+   const [user, setUser] = useState(null);
 
     const [successMessage, setSuccessMessage] = useState("");
     
@@ -30,6 +31,22 @@ const AddProduct = () => {
     };
     fetchJuiceBars();
 }, []);
+useEffect(() => {
+    // Check if user is logged in and is an owner
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      navigate("/");
+      return;
+    }
+
+    const user = JSON.parse(userData);
+    if (user.user.role !== "owner") {
+      navigate("/");
+      return;
+    }
+
+    setUser(user.user);
+  }, [navigate]);
 
 
     const handleProductManagement = () => {
