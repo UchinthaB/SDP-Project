@@ -172,7 +172,7 @@ const OrderManagement = () => {
   }, [navigate]);
 
   // Handle order status update including email notification
-  const updateOrderStatus = async (orderId, newStatus) => {
+ const updateOrderStatus = async (orderId, newStatus) => {
     try {
       setLoading(true);
       console.log(`Updating order ${orderId} status to ${newStatus}`);
@@ -191,22 +191,24 @@ const OrderManagement = () => {
         throw new Error('Failed to update order status');
       }
 
-      // Then send email notification about the status change
-      console.log(`Sending email notification for order ${orderId} with status ${newStatus}`);
-      const emailResponse = await fetch('http://localhost:5000/api/employees/notify-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ orderId, status: newStatus })
-      });
+      // Only send email notification if the new status is 'ready'
+      if (newStatus.toLowerCase() === 'ready') {
+        console.log(`Sending email notification for order ${orderId} with status ${newStatus}`);
+        const emailResponse = await fetch('http://localhost:5000/api/employees/notify-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ orderId, status: newStatus })
+        });
 
-      if (!emailResponse.ok) {
-        console.warn('Email notification could not be sent, but order status was updated');
-      } else {
-        const emailData = await emailResponse.json();
-        console.log('Email notification sent:', emailData);
+        if (!emailResponse.ok) {
+          console.warn('Email notification could not be sent, but order status was updated');
+        } else {
+          const emailData = await emailResponse.json();
+          console.log('Email notification sent:', emailData);
+        }
       }
 
       // Update local state
@@ -224,7 +226,9 @@ const OrderManagement = () => {
       // Show success message
       setSnackbar({
         open: true,
-        message: `Order #${orderId} updated to ${newStatus} and notification sent`,
+        message: newStatus.toLowerCase() === 'ready' 
+          ? `Order #${orderId} updated to ${newStatus} and notification sent`
+          : `Order #${orderId} updated to ${newStatus}`,
         severity: 'success'
       });
     } catch (err) {

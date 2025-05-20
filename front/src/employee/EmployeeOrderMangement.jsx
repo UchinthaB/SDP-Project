@@ -150,6 +150,8 @@ const EmployeeOrderManagement = () => {
     }
   };
 
+  
+
   // Initial fetch on component mount
   useEffect(() => {
     // Check if user is logged in
@@ -177,10 +179,59 @@ const EmployeeOrderManagement = () => {
   }, [navigate]);
 
   // Handle order status update
+  // const updateOrderStatus = async (orderId, newStatus) => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${localStorage.getItem('token')}`
+  //       },
+  //       body: JSON.stringify({ status: newStatus })
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error('Failed to update order status');
+  //     }
+
+  //     // Update local state
+  //     setOrders(prevOrders => 
+  //       prevOrders.map(order => 
+  //         order.order_id === orderId ? { ...order, status: newStatus } : order
+  //       )
+  //     );
+
+  //     // Show success message
+  //     setSnackbar({
+  //       open: true,
+  //       message: `Order #${orderId} updated to ${newStatus}`,
+  //       severity: 'success'
+  //     });
+      
+  //     // If order details dialog is open and it's the updated order, update it
+  //     if (selectedOrder && selectedOrder.order_id === orderId) {
+  //       setSelectedOrder({ ...selectedOrder, status: newStatus });
+  //     }
+  //   } catch (err) {
+  //     console.error('Error updating order status:', err);
+  //     setSnackbar({
+  //       open: true,
+  //       message: 'Failed to update order status',
+  //       severity: 'error'
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      console.log(`Updating order ${orderId} status to ${newStatus}`);
+      
+      // First update the order status in the database
+      const statusResponse = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -189,8 +240,28 @@ const EmployeeOrderManagement = () => {
         body: JSON.stringify({ status: newStatus })
       });
 
-      if (!response.ok) {
+      if (!statusResponse.ok) {
         throw new Error('Failed to update order status');
+      }
+
+      // Only send email notification if the new status is 'ready'
+      if (newStatus.toLowerCase() === 'ready') {
+        console.log(`Sending email notification for order ${orderId} with status ${newStatus}`);
+        const emailResponse = await fetch('http://localhost:5000/api/employees/notify-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ orderId, status: newStatus })
+        });
+
+        if (!emailResponse.ok) {
+          console.warn('Email notification could not be sent, but order status was updated');
+        } else {
+          const emailData = await emailResponse.json();
+          console.log('Email notification sent:', emailData);
+        }
       }
 
       // Update local state
@@ -200,17 +271,19 @@ const EmployeeOrderManagement = () => {
         )
       );
 
-      // Show success message
-      setSnackbar({
-        open: true,
-        message: `Order #${orderId} updated to ${newStatus}`,
-        severity: 'success'
-      });
-      
       // If order details dialog is open and it's the updated order, update it
       if (selectedOrder && selectedOrder.order_id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
+
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: newStatus.toLowerCase() === 'ready' 
+          ? `Order #${orderId} updated to ${newStatus} and notification sent`
+          : `Order #${orderId} updated to ${newStatus}`,
+        severity: 'success'
+      });
     } catch (err) {
       console.error('Error updating order status:', err);
       setSnackbar({

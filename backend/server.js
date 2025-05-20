@@ -21,7 +21,7 @@ app.use('/api/cart', cartRoutes); // Assuming you have user routes as well
 app.use('/uploads', express.static('uploads'));
 app.use('/api/employees', employeeRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/reports', salesReportRoutes);
+app.use('/api/reports', salesReportRoutes); // Changed from '/api/sales' to '/api/reports'
 app.use('/api/messages', messageRoutes);
 
 const PORT = process.env.PORT || 5000;

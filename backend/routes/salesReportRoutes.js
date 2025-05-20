@@ -6,16 +6,13 @@ const authenticateToken = require("../middleware/authMiddleware");
 // Apply authentication middleware to all routes
 router.use(authenticateToken);
 
-// Get daily sales report
+// Get reports
 router.get("/daily", salesReportController.getDailySalesReport);
-
-// Get weekly sales report
 router.get("/weekly", salesReportController.getWeeklySalesReport);
-
-// Get monthly sales report
 router.get("/monthly", salesReportController.getMonthlySalesReport);
-
-// Get custom range sales report
 router.get("/custom", salesReportController.getCustomRangeSalesReport);
+
+// Download reports
+router.get("/download/:reportType", salesReportController.generatePdfReport);
 
 module.exports = router;

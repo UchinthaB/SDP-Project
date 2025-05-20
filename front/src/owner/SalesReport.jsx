@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./salesReport.css";
+import DownloadReportButton from '../components/DownloadReportButton';
+
+// Inside your sales report component
+ // or "weekly", "monthly"
 import {
   Box,
   Container,
@@ -104,32 +108,34 @@ const SalesReport = () => {
       }
       
       let url = "";
+      const baseUrl = "http://localhost:5000/api/reports";
       
       switch (reportType) {
         case "daily":
-          url = `/api/reports/daily?date=${selectedDate}`;
+          url = `${baseUrl}/daily?date=${selectedDate}`;
           break;
         case "weekly":
-          url = `/api/reports/weekly?startDate=${startDate}&endDate=${endDate}`;
+          url = `${baseUrl}/weekly?startDate=${startDate}&endDate=${endDate}`;
           break;
         case "monthly":
-          url = `/api/reports/monthly?year=${selectedYear}&month=${selectedMonth}`;
+          url = `${baseUrl}/monthly?year=${selectedYear}&month=${selectedMonth}`;
           break;
         case "custom":
-          url = `/api/reports/custom?startDate=${startDate}&endDate=${endDate}`;
+          url = `${baseUrl}/custom?startDate=${startDate}&endDate=${endDate}`;
           break;
         default:
-          url = "/api/reports/daily";
+          url = `${baseUrl}/daily`;
       }
       
-      const response = await fetch(`http://localhost:5000${url}`, {
+      const response = await fetch(url, {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch report: ${response.status}`);
+        throw new Error(`Server responded with status: ${response.status}`);
       }
       
       const data = await response.json();
@@ -280,6 +286,11 @@ return (
                 >
                   Generate
                 </Button>
+
+                <DownloadReportButton 
+                  reportType="daily"
+                  selectedDate={selectedDate} // Pass the actual date value
+                />
               </Grid>
             </Grid>
           )}
