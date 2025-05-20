@@ -29,7 +29,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid
+  Grid,
+  TextField,
+  InputAdornment
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
@@ -38,7 +40,9 @@ import {
   LocalCafe as LocalCafeIcon,
   Logout as LogoutIcon,
   ArrowBack as ArrowBackIcon,
-  FilterList as FilterListIcon
+  FilterList as FilterListIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
 import EmployeeSidebar from "./EmployeeSidebar";
@@ -89,6 +93,7 @@ const EmployeeOrderManagement = () => {
   const [juiceBars, setJuiceBars] = useState([]);
   const [selectedJuiceBar, setSelectedJuiceBar] = useState('all');
   const [loadingJuiceBars, setLoadingJuiceBars] = useState(true);
+  const [searchToken, setSearchToken] = useState('');
   
   const navigate = useNavigate();
 
@@ -257,7 +262,20 @@ const EmployeeOrderManagement = () => {
     setSelectedJuiceBar(event.target.value);
   };
 
-  // Filter orders based on tab value and selected juice bar
+  // Handle search input change
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+  if (value === '' || /^[0-9]+$/.test(value))
+    
+    setSearchToken(event.target.value);
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchToken('');
+  };
+
+  // Filter orders based on tab value, selected juice bar, and search token
   const filteredOrders = orders.filter(order => {
     // First filter by order status tab
     const statusMatch = tabValue === 0 ? true : // All orders
@@ -269,7 +287,11 @@ const EmployeeOrderManagement = () => {
     const juiceBarMatch = selectedJuiceBar === 'all' ? true : 
                           parseInt(order.juice_bar_id) === parseInt(selectedJuiceBar);
     
-    return statusMatch && juiceBarMatch;
+    // Then filter by token number search
+    const searchMatch = searchToken === '' ? true :
+                        order.token_number.toString().includes(searchToken);
+    
+    return statusMatch && juiceBarMatch && searchMatch;
   });
 
   // Get count of orders by status
@@ -343,26 +365,6 @@ const EmployeeOrderManagement = () => {
   return (
     <EmployeeSidebar>
     <Box sx={{ backgroundColor: '#f5f5f3', minHeight: '100vh', pb: 4 }}>
-      {/* App Bar */}
-      {/* <AppBar position="sticky" sx={{ backgroundColor: '#166d67' }}>
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => navigate('/employee/dashboard')}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-            <LocalCafeIcon sx={{ mr: 1 }} /> Order Management
-          </Typography>
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar> */}
-
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         {/* Page Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -380,12 +382,12 @@ const EmployeeOrderManagement = () => {
         {/* Filters Section */}
         <Paper sx={{ p: 2, mb: 3 }}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={3}>
               <Typography variant="subtitle1" sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, md: 0 } }}>
                 <FilterListIcon sx={{ mr: 1 }} /> Filter Orders
               </Typography>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={5}>
               <FormControl fullWidth variant="outlined" size="small">
                 <InputLabel id="juice-bar-filter-label">Juice Bar Location</InputLabel>
                 <Select
@@ -404,6 +406,35 @@ const EmployeeOrderManagement = () => {
                   ))}
                 </Select>
               </FormControl>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                size="small"
+                placeholder="Search by token number"
+                value={searchToken}
+                onChange={handleSearchChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchToken && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="clear search"
+                        onClick={handleClearSearch}
+                        edge="end"
+                        size="small"
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
             </Grid>
           </Grid>
         </Paper>
@@ -433,6 +464,18 @@ const EmployeeOrderManagement = () => {
           </Box>
         )}
 
+        {/* Search Results Display */}
+        {searchToken && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle1">
+              Search results for token: <Chip label={searchToken} color="secondary" size="small" />
+              {filteredOrders.length > 0 
+                ? ` (${filteredOrders.length} ${filteredOrders.length === 1 ? 'result' : 'results'} found)`
+                : ' (No matching orders found)'}
+            </Typography>
+          </Box>
+        )}
+
         {/* Orders Table */}
         {loading && !filteredOrders.length ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
@@ -444,10 +487,22 @@ const EmployeeOrderManagement = () => {
           <Paper sx={{ p: 4, textAlign: 'center' }}>
             <Typography variant="h6" color="textSecondary">No orders found</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-              {selectedJuiceBar !== 'all' 
-                ? `There are no ${tabValue === 0 ? '' : tabValue === 1 ? 'pending ' : tabValue === 2 ? 'processing ' : 'ready '}orders for ${getJuiceBarName(selectedJuiceBar)}.`
-                : tabValue === 0 ? 'There are no orders in the system.' : `There are no ${tabValue === 1 ? 'pending' : tabValue === 2 ? 'processing' : 'ready'} orders.`}
+              {searchToken 
+                ? `No orders found matching token number: ${searchToken}`
+                : selectedJuiceBar !== 'all' 
+                  ? `There are no ${tabValue === 0 ? '' : tabValue === 1 ? 'pending ' : tabValue === 2 ? 'processing ' : 'ready '}orders for ${getJuiceBarName(selectedJuiceBar)}.`
+                  : tabValue === 0 ? 'There are no orders in the system.' : `There are no ${tabValue === 1 ? 'pending' : tabValue === 2 ? 'processing' : 'ready'} orders.`}
             </Typography>
+            {searchToken && (
+              <Button 
+                variant="outlined" 
+                onClick={handleClearSearch}
+                startIcon={<ClearIcon />}
+                sx={{ mt: 2 }}
+              >
+                Clear Search
+              </Button>
+            )}
           </Paper>
         ) : (
           <TableContainer component={Paper}>
@@ -467,7 +522,15 @@ const EmployeeOrderManagement = () => {
                 {filteredOrders.map((order) => (
                   <TableRow key={order.order_id} hover>
                     <TableCell>
-                      <Typography variant="subtitle2">#{order.token_number}</Typography>
+                      <Typography 
+                        variant="subtitle2" 
+                        sx={{
+                          fontWeight: searchToken && order.token_number.toString().includes(searchToken) ? 'bold' : 'normal',
+                          color: searchToken && order.token_number.toString().includes(searchToken) ? 'primary.main' : 'inherit'
+                        }}
+                      >
+                        #{order.token_number}
+                      </Typography>
                     </TableCell>
                     <TableCell>{order.customer_name}</TableCell>
                     <TableCell>
