@@ -1,15 +1,18 @@
 const db = require("../config/db");
 
 // Create a new order
-const createOrder = async ({ customer_id, total_amount, payment_method, token_number, order_status = 'pending' }) => {
-    // First, get the juice bar ID (using the first one for simplicity, this can be modified)
-    const [juiceBars] = await db.execute('SELECT juice_bar_id FROM juice_bars LIMIT 1');
-    const juice_bar_id = juiceBars[0].juice_bar_id;
+const createOrder = async ({ customer_id, total_amount, payment_method, token_number, juice_bar_id, order_status = 'pending' }) => {
+    // Use the provided juice_bar_id or get the first one if not provided
+    let selectedJuiceBarId = juice_bar_id;
+    if (!selectedJuiceBarId) {
+        const [juiceBars] = await db.execute('SELECT juice_bar_id FROM juice_bars LIMIT 1');
+        selectedJuiceBarId = juiceBars[0].juice_bar_id;
+    }
     
     const [result] = await db.execute(
-        `INSERT INTO orders (user_id, juice_bar_id, token_number,payment_method, status, total_amount) 
+        `INSERT INTO orders (user_id, juice_bar_id, token_number, payment_method, status, total_amount) 
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [customer_id, juice_bar_id, token_number,payment_method, order_status, total_amount]
+        [customer_id, selectedJuiceBarId, token_number, payment_method, order_status, total_amount]
     );
     
     return result.insertId;
@@ -46,8 +49,11 @@ const getCustomerOrders = async (customer_id) => {
             o.status,
             o.created_at,
             o.completed_at,
-            'cash' AS payment_method
+            o.payment_method,
+            o.juice_bar_id,
+            j.name AS juice_bar_name
         FROM orders o
+        LEFT JOIN juice_bars j ON o.juice_bar_id = j.juice_bar_id
         WHERE o.user_id = ?
         ORDER BY o.created_at DESC
     `, [customer_id]);
@@ -62,19 +68,29 @@ const getOrderById = async (order_id) => {
         SELECT 
             o.order_id,
             o.user_id AS customer_id,
+            o.juice_bar_id,
+            j.name AS juice_bar_name,
             o.token_number,
             o.total_amount,
-            'cash' AS payment_method,
+            o.payment_method,
             o.status,
             o.created_at,
             o.completed_at
         FROM orders o
+        LEFT JOIN juice_bars j ON o.juice_bar_id = j.juice_bar_id
         WHERE o.order_id = ?
     `, [order_id]);
     
     if (orderRows.length === 0) {
         return null;
     }
+    
+    // Get customer info
+    const [customerRows] = await db.execute(`
+        SELECT username, email
+        FROM users
+        WHERE user_id = ?
+    `, [orderRows[0].customer_id]);
     
     // Get order items
     const [itemRows] = await db.execute(`
@@ -92,6 +108,8 @@ const getOrderById = async (order_id) => {
     
     return {
         ...orderRows[0],
+        customer_name: customerRows.length > 0 ? customerRows[0].username : 'Unknown',
+        customer_email: customerRows.length > 0 ? customerRows[0].email : 'Unknown',
         items: itemRows
     };
 };
@@ -112,63 +130,69 @@ const updateOrderStatus = async (order_id, order_status) => {
 };
 
 // Get orders for juice bar owner to process (pending orders first)
-const getPendingOrders = async () => {
-    const [rows] = await db.execute(`
+const getPendingOrders = async (juice_bar_id = null) => {
+    let query = `
         SELECT 
             o.order_id,
             o.user_id AS customer_id,
             u.username AS customer_name,
+            o.juice_bar_id,
+            j.name AS juice_bar_name,
             o.token_number,
             o.total_amount,
-            'cash' AS payment_method,
-            o.status ,
+            o.payment_method,
+            o.status,
             o.created_at
         FROM orders o
         JOIN users u ON o.user_id = u.user_id
-        WHERE o.status IN ('pending', 'processing', 'cancelled')
+        LEFT JOIN juice_bars j ON o.juice_bar_id = j.juice_bar_id
+        WHERE o.status IN ('pending', 'processing', 'ready')
+    `;
+    
+    const params = [];
+    
+    // If a specific juice bar is requested, filter for that
+    if (juice_bar_id) {
+        query += ` AND o.juice_bar_id = ?`;
+        params.push(juice_bar_id);
+    }
+    
+    query += `
         ORDER BY 
             CASE 
                 WHEN o.status = 'pending' THEN 0 
                 WHEN o.status = 'processing' THEN 1
-                WHEN o.status = 'cancelled' THEN 2
-
+                WHEN o.status = 'ready' THEN 2
             END,
             o.created_at ASC
-    `);
+    `;
+    
+    const [rows] = await db.execute(query, params);
     
     return rows;
 };
 
 // Generate a unique token number
 const generateTokenNumber = async () => {
-    try {
-        // Start transaction
-        await db.execute('START TRANSACTION');
-        
-        // Get or create today's sequence
-        const [result] = await db.execute(`
-            INSERT INTO token_sequences (date, last_token) 
-            VALUES (CURRENT_DATE, 1)
-            ON DUPLICATE KEY UPDATE last_token = last_token + 1
-        `);
-        
-        // Get the updated token
-        const [rows] = await db.execute(`
-            SELECT last_token FROM token_sequences
-            WHERE date = CURRENT_DATE
-        `);
-        
-        // Commit transaction
-        await db.execute('COMMIT');
-        
-        return rows[0].last_token.toString();
-    } catch (error) {
-        await db.execute('ROLLBACK');
-        console.error('Error generating token number:', error);
-        return Date.now().toString();
+    // Get the max token number from the current day
+    const [rows] = await db.execute(`
+        SELECT MAX(token_number) AS max_token
+        FROM orders
+        WHERE DATE(created_at) = CURRENT_DATE
+    `);
+    
+    let maxToken = rows[0].max_token || 0;
+    
+    // If it's a string, convert to number
+    if (typeof maxToken === 'string') {
+        maxToken = parseInt(maxToken, 10) || 0;
     }
+    
+    // Increment by 1 for the new token
+    return (maxToken + 1).toString();
 };
 
+// Cancel an order
 const cancelOrder = async (orderId) => {
     const sql = `UPDATE orders SET status = 'cancelled', completed_at = NOW() WHERE order_id = ?`;
     
@@ -181,6 +205,7 @@ const cancelOrder = async (orderId) => {
     }
 };
 
+// Delete an order
 const deleteOrder = async (orderId) => {
     try {
         // First delete order items
@@ -196,6 +221,30 @@ const deleteOrder = async (orderId) => {
     }
 };
 
+// Get orders by juice bar
+const getOrdersByJuiceBar = async (juice_bar_id) => {
+    const [rows] = await db.execute(`
+        SELECT 
+            o.order_id,
+            o.user_id AS customer_id,
+            u.username AS customer_name,
+            o.juice_bar_id,
+            j.name AS juice_bar_name,
+            o.token_number,
+            o.total_amount,
+            o.payment_method,
+            o.status,
+            o.created_at,
+            o.completed_at
+        FROM orders o
+        JOIN users u ON o.user_id = u.user_id
+        LEFT JOIN juice_bars j ON o.juice_bar_id = j.juice_bar_id
+        WHERE o.juice_bar_id = ?
+        ORDER BY o.created_at DESC
+    `, [juice_bar_id]);
+    
+    return rows;
+};
 
 module.exports = {
     createOrder,
@@ -206,6 +255,6 @@ module.exports = {
     getPendingOrders,
     generateTokenNumber,
     cancelOrder,
-    deleteOrder
-    
+    deleteOrder,
+    getOrdersByJuiceBar
 };
