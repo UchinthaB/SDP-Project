@@ -296,7 +296,7 @@ const Cart = () => {
         <List>
           <ListItem>
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              Fresh Juice Bar
+              Juice Bar - University of Kelaniya
             </Typography>
           </ListItem>
           <Divider />
