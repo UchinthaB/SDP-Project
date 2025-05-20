@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./employeeDashboard.css";
+import EmployeeSidebar from "./EmployeeSidebar";
 
 const EmployeeDashboard = () => {
     const [user, setUser] = useState(null);
@@ -38,6 +39,7 @@ const EmployeeDashboard = () => {
     };
 
     return (
+     <EmployeeSidebar>   
         <div className="employee-dashboard">
             <div className="dashboard-header">
                 <h1>Employee Dashboard</h1>
@@ -47,28 +49,7 @@ const EmployeeDashboard = () => {
             </div>
 
             <div className="dashboard-content">
-                <div className="quick-actions">
-                    <h2>Quick Actions</h2>
-                    <div className="action-cards">
-                        <div className="action-card" onClick={handleProductManagement}>
-                            <div className="card-icon product-icon">
-                                <i className="fas fa-box"></i>
-                            </div>
-                            <h3>Product Management</h3>
-                            <p>View, add, edit, and delete products</p>
-                        </div>
-                        
-                        <div className="action-card" onClick={handleOrderManagement}>
-                            <div className="card-icon orders-icon">
-                                <i className="fas fa-receipt"></i>
-                            </div>
-                            <h3>Order Management</h3>
-                            <p>Coming soon - Manage customer orders</p>
-                        </div>
-                        
-                       
-                    </div>
-                </div>
+                
 
                 <div className="system-info">
                     <h2>System Information</h2>
@@ -89,15 +70,9 @@ const EmployeeDashboard = () => {
                 </div>
             </div>
 
-            <div className="dashboard-footer">
-                <button 
-                    className="button logout-btn" 
-                    onClick={handleLogout}
-                >
-                    Logout
-                </button>
-            </div>
+           
         </div>
+       </EmployeeSidebar>   
     );
 };
 

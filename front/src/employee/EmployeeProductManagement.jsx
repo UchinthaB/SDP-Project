@@ -39,6 +39,7 @@ import {
   ArrowBack as ArrowBackIcon
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
+import EmployeeSidebar from "./EmployeeSidebar";
 // import "./owner/productManagement.css";
 
 // Styled components
@@ -185,9 +186,10 @@ const EmployeeProductManagement = () => {
     };
 
     return (
+        <EmployeeSidebar>
         <Box sx={{ backgroundColor: '#f5f5f3', minHeight: '100vh', pb: 4 }}>
             {/* App Bar */}
-            <AppBar position="sticky" sx={{ backgroundColor: '#166d67' }}>
+            {/* <AppBar position="sticky" sx={{ backgroundColor: '#166d67' }}>
                 <Toolbar>
                     <IconButton
                         edge="start"
@@ -204,7 +206,7 @@ const EmployeeProductManagement = () => {
                         Logout
                     </Button>
                 </Toolbar>
-            </AppBar>
+            </AppBar> */}
 
             <Container maxWidth="lg" sx={{ mt: 4 }}>
                 {/* Page Header */}
@@ -396,6 +398,7 @@ const EmployeeProductManagement = () => {
                 </Alert>
             </Snackbar>
         </Box>
+        </EmployeeSidebar>
     );
 };
 

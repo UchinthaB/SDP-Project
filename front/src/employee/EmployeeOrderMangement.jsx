@@ -24,7 +24,12 @@ import {
   AppBar,
   Toolbar,
   Tabs,
-  Tab
+  Tab,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
@@ -32,9 +37,11 @@ import {
   Check as CheckIcon,
   LocalCafe as LocalCafeIcon,
   Logout as LogoutIcon,
-  ArrowBack as ArrowBackIcon
+  ArrowBack as ArrowBackIcon,
+  FilterList as FilterListIcon
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
+import EmployeeSidebar from "./EmployeeSidebar";
 
 // Styled components
 const OrderStatusChip = styled(Chip)(({ theme, status }) => {
@@ -79,8 +86,39 @@ const EmployeeOrderManagement = () => {
     message: '',
     severity: 'success'
   });
+  const [juiceBars, setJuiceBars] = useState([]);
+  const [selectedJuiceBar, setSelectedJuiceBar] = useState('all');
+  const [loadingJuiceBars, setLoadingJuiceBars] = useState(true);
   
   const navigate = useNavigate();
+
+  // Fetch juice bar locations
+  const fetchJuiceBars = async () => {
+    try {
+      setLoadingJuiceBars(true);
+      const response = await fetch('http://localhost:5000/api/products/juicebars', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch juice bar locations');
+      }
+
+      const data = await response.json();
+      setJuiceBars(data);
+    } catch (err) {
+      console.error('Error fetching juice bar locations:', err);
+      setSnackbar({
+        open: true,
+        message: 'Failed to load juice bar locations',
+        severity: 'error'
+      });
+    } finally {
+      setLoadingJuiceBars(false);
+    }
+  };
 
   // Fetch all pending orders
   const fetchOrders = async () => {
@@ -116,13 +154,14 @@ const EmployeeOrderManagement = () => {
       return;
     }
 
-    // Check if user is owner or employee
+    // Check if user is employee
     const user = JSON.parse(userData);
     if (user.user.role !== "employee") {
       navigate("/");
       return;
     }
 
+    fetchJuiceBars();
     fetchOrders();
     
     // Set up polling for new orders (every 30 seconds)
@@ -135,6 +174,7 @@ const EmployeeOrderManagement = () => {
   // Handle order status update
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
+      setLoading(true);
       const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
@@ -173,6 +213,8 @@ const EmployeeOrderManagement = () => {
         message: 'Failed to update order status',
         severity: 'error'
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -209,17 +251,49 @@ const EmployeeOrderManagement = () => {
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
+  
+  // Handle juice bar filter change
+  const handleJuiceBarChange = (event) => {
+    setSelectedJuiceBar(event.target.value);
+  };
 
-  // Filter orders based on tab value
+  // Filter orders based on tab value and selected juice bar
   const filteredOrders = orders.filter(order => {
-    if (tabValue === 0) return true; // All orders
-    if (tabValue === 1) return order.status === 'pending';
-    if (tabValue === 2) return order.status === 'processing';
-    if (tabValue === 3) return order.status === 'ready';
-    return false;
+    // First filter by order status tab
+    const statusMatch = tabValue === 0 ? true : // All orders
+                        tabValue === 1 ? order.status === 'pending' :
+                        tabValue === 2 ? order.status === 'processing' :
+                        tabValue === 3 ? order.status === 'ready' : false;
+    
+    // Then filter by juice bar if a specific one is selected
+    const juiceBarMatch = selectedJuiceBar === 'all' ? true : 
+                          parseInt(order.juice_bar_id) === parseInt(selectedJuiceBar);
+    
+    return statusMatch && juiceBarMatch;
   });
 
-const handleDeleteOrder = async (orderId) => {
+  // Get count of orders by status
+  const getOrderCountByStatus = (status) => {
+    return orders.filter(o => 
+      o.status === status && 
+      (selectedJuiceBar === 'all' || parseInt(o.juice_bar_id) === parseInt(selectedJuiceBar))
+    ).length;
+  };
+
+  // Get total order count for current juice bar filter
+  const getTotalOrderCount = () => {
+    return orders.filter(o => 
+      selectedJuiceBar === 'all' || parseInt(o.juice_bar_id) === parseInt(selectedJuiceBar)
+    ).length;
+  };
+
+  // Get juice bar name by ID
+  const getJuiceBarName = (id) => {
+    const juiceBar = juiceBars.find(jb => jb.juice_bar_id === parseInt(id));
+    return juiceBar ? juiceBar.name : 'Unknown Location';
+  };
+
+  const handleDeleteOrder = async (orderId) => {
     if (!window.confirm('Are you sure you want to permanently delete this cancelled order?')) {
         return;
     }
@@ -257,7 +331,7 @@ const handleDeleteOrder = async (orderId) => {
             severity: 'error'
         });
     }
-};
+  };
 
   // Handle logout
   const handleLogout = () => {
@@ -266,17 +340,16 @@ const handleDeleteOrder = async (orderId) => {
     navigate("/login");
   };
 
-  
-
   return (
+    <EmployeeSidebar>
     <Box sx={{ backgroundColor: '#f5f5f3', minHeight: '100vh', pb: 4 }}>
       {/* App Bar */}
-      <AppBar position="sticky" sx={{ backgroundColor: '#166d67' }}>
+      {/* <AppBar position="sticky" sx={{ backgroundColor: '#166d67' }}>
         <Toolbar>
           <IconButton
             edge="start"
             color="inherit"
-            onClick={() => navigate('/owner/dashboard')}
+            onClick={() => navigate('/employee/dashboard')}
             sx={{ mr: 2 }}
           >
             <ArrowBackIcon />
@@ -288,7 +361,7 @@ const handleDeleteOrder = async (orderId) => {
             Logout
           </Button>
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
 
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         {/* Page Header */}
@@ -303,6 +376,37 @@ const handleDeleteOrder = async (orderId) => {
             Refresh Orders
           </Button>
         </Box>
+
+        {/* Filters Section */}
+        <Paper sx={{ p: 2, mb: 3 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle1" sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, md: 0 } }}>
+                <FilterListIcon sx={{ mr: 1 }} /> Filter Orders
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel id="juice-bar-filter-label">Juice Bar Location</InputLabel>
+                <Select
+                  labelId="juice-bar-filter-label"
+                  id="juice-bar-filter"
+                  value={selectedJuiceBar}
+                  onChange={handleJuiceBarChange}
+                  label="Juice Bar Location"
+                  disabled={loadingJuiceBars}
+                >
+                  <MenuItem value="all">All Locations</MenuItem>
+                  {juiceBars.map((juiceBar) => (
+                    <MenuItem key={juiceBar.juice_bar_id} value={juiceBar.juice_bar_id}>
+                      {juiceBar.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </Paper>
         
         {/* Status Filter Tabs */}
         <Paper sx={{ mb: 3 }}>
@@ -313,12 +417,21 @@ const handleDeleteOrder = async (orderId) => {
             textColor="primary"
             variant="fullWidth"
           >
-            <Tab label={`All Orders (${orders.length})`} />
-            <Tab label={`Pending (${orders.filter(o => o.status === 'pending').length})`} />
-            <Tab label={`Processing (${orders.filter(o => o.status === 'processing').length})`} />
-            <Tab label={`Ready (${orders.filter(o => o.status === 'ready').length})`} />
+            <Tab label={`All Orders (${getTotalOrderCount()})`} />
+            <Tab label={`Pending (${getOrderCountByStatus('pending')})`} />
+            <Tab label={`Processing (${getOrderCountByStatus('processing')})`} />
+            <Tab label={`Ready (${getOrderCountByStatus('ready')})`} />
           </Tabs>
         </Paper>
+
+        {/* Selected Location Display */}
+        {selectedJuiceBar !== 'all' && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle1">
+              Showing orders for: <Chip label={getJuiceBarName(selectedJuiceBar)} color="primary" size="small" />
+            </Typography>
+          </Box>
+        )}
 
         {/* Orders Table */}
         {loading && !filteredOrders.length ? (
@@ -331,7 +444,9 @@ const handleDeleteOrder = async (orderId) => {
           <Paper sx={{ p: 4, textAlign: 'center' }}>
             <Typography variant="h6" color="textSecondary">No orders found</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-              {tabValue === 0 ? 'There are no orders in the system.' : 'There are no orders in this status category.'}
+              {selectedJuiceBar !== 'all' 
+                ? `There are no ${tabValue === 0 ? '' : tabValue === 1 ? 'pending ' : tabValue === 2 ? 'processing ' : 'ready '}orders for ${getJuiceBarName(selectedJuiceBar)}.`
+                : tabValue === 0 ? 'There are no orders in the system.' : `There are no ${tabValue === 1 ? 'pending' : tabValue === 2 ? 'processing' : 'ready'} orders.`}
             </Typography>
           </Paper>
         ) : (
@@ -341,6 +456,7 @@ const handleDeleteOrder = async (orderId) => {
                 <TableRow>
                   <TableCell>Token #</TableCell>
                   <TableCell>Customer</TableCell>
+                  <TableCell>Location</TableCell>
                   <TableCell>Date</TableCell>
                   <TableCell>Total</TableCell>
                   <TableCell>Status</TableCell>
@@ -355,6 +471,14 @@ const handleDeleteOrder = async (orderId) => {
                     </TableCell>
                     <TableCell>{order.customer_name}</TableCell>
                     <TableCell>
+                      <Chip 
+                        label={getJuiceBarName(order.juice_bar_id)} 
+                        size="small" 
+                        variant="outlined"
+                        color="primary"
+                      />
+                    </TableCell>
+                    <TableCell>
                       {new Date(order.created_at).toLocaleString()}
                     </TableCell>
                     <TableCell>Rs.{parseFloat(order.total_amount).toFixed(2)}</TableCell>
@@ -366,66 +490,60 @@ const handleDeleteOrder = async (orderId) => {
                       />
                     </TableCell>
                     <TableCell>
-                       {order.status !== 'cancelled' && (
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <IconButton 
-                          size="small" 
-                          color="primary"
-                          onClick={() => handleViewOrderDetails(order.order_id)}
-                        >
-                          <VisibilityIcon fontSize="small" />
-                        </IconButton>
-                        
-                        {order.status === 'pending' && (
-                          <Button 
+                       {order.status !== 'cancelled' ? (
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <IconButton 
                             size="small" 
-                            variant="outlined" 
                             color="primary"
-                            onClick={() => updateOrderStatus(order.order_id, 'processing')}
+                            onClick={() => handleViewOrderDetails(order.order_id)}
                           >
-                            Process
-                          </Button>
-                        )}
-                        
-                        {order.status === 'processing' && (
-                          <Button 
-                            size="small" 
-                            variant="outlined" 
-                            color="success"
-                            onClick={() => updateOrderStatus(order.order_id, 'ready')}
-                          >
-                            Mark Ready
-                          </Button>
-                        )}
-                        
-                        {order.status === 'ready' && (
-                          <Button 
-                            size="small" 
-                            variant="outlined" 
-                            color="success"
-                            startIcon={<CheckIcon />}
-                            onClick={() => updateOrderStatus(order.order_id, 'completed')}
-                          >
-                            Complete
-                          </Button>
-
-
-
-                        )}
-
-                        {order.status === 'cancelled' && (
-            <Button 
-                size="small" 
-                variant="outlined" 
-                color="error"
-                onClick={() => handleDeleteOrder(order.order_id)}
-            >
-                Delete
-            </Button>
-        )}
-        
-                      </Box>
-                    )}
+                            <VisibilityIcon fontSize="small" />
+                          </IconButton>
+                          
+                          {order.status === 'pending' && (
+                            <Button 
+                              size="small" 
+                              variant="outlined" 
+                              color="primary"
+                              onClick={() => updateOrderStatus(order.order_id, 'processing')}
+                            >
+                              Process
+                            </Button>
+                          )}
+                          
+                          {order.status === 'processing' && (
+                            <Button 
+                              size="small" 
+                              variant="outlined" 
+                              color="success"
+                              onClick={() => updateOrderStatus(order.order_id, 'ready')}
+                            >
+                              Mark Ready
+                            </Button>
+                          )}
+                          
+                          {order.status === 'ready' && (
+                            <Button 
+                              size="small" 
+                              variant="outlined" 
+                              color="success"
+                              startIcon={<CheckIcon />}
+                              onClick={() => updateOrderStatus(order.order_id, 'completed')}
+                            >
+                              Complete
+                            </Button>
+                          )}
+                        </Box>
+                      ) : (
+                        <Button 
+                          size="small" 
+                          variant="outlined" 
+                          color="error"
+                          onClick={() => handleDeleteOrder(order.order_id)}
+                        >
+                          Delete
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -455,7 +573,7 @@ const handleDeleteOrder = async (orderId) => {
             <DialogContent>
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle1">Order Information</Typography>
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mt: 1 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
                   <Typography variant="body2">
                     <strong>Order ID:</strong> {selectedOrder.order_id}
                   </Typography>
@@ -463,10 +581,25 @@ const handleDeleteOrder = async (orderId) => {
                     <strong>Date:</strong> {new Date(selectedOrder.created_at).toLocaleString()}
                   </Typography>
                   <Typography variant="body2">
+                    <strong>Location:</strong> {getJuiceBarName(selectedOrder.juice_bar_id)}
+                  </Typography>
+                  <Typography variant="body2">
                     <strong>Payment Method:</strong> {selectedOrder.payment_method === 'cash' ? 'Cash on Pickup' : 'Online Payment'}
                   </Typography>
                   <Typography variant="body2">
                     <strong>Total Amount:</strong> Rs.{parseFloat(selectedOrder.total_amount).toFixed(2)}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle1">Customer Information</Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
+                  <Typography variant="body2">
+                    <strong>Name:</strong> {selectedOrder.customer_name}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Email:</strong> {selectedOrder.customer_email}
                   </Typography>
                 </Box>
               </Box>
@@ -561,6 +694,7 @@ const handleDeleteOrder = async (orderId) => {
         </Alert>
       </Snackbar>
     </Box>
+    </EmployeeSidebar>
   );
 };
 
