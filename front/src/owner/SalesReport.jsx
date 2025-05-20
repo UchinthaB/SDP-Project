@@ -537,7 +537,7 @@ return (
           {/* Charts */}
           <Grid container spacing={3} sx={{ mb: 4 }}>
             {/* Sales Trend Chart */}
-            <Grid item xs={12} md={8}>
+            {/* <Grid item xs={12} md={8}>
               <div className="chart-container">
                 <div className="chart-header">
                   <h2>
@@ -580,8 +580,8 @@ return (
                 </div>
               </div>
             </Grid>
-            
-            {/* Sales by Location Pie Chart */}
+             */}
+            {/* Sales by Location Pie Chart
             <Grid item xs={12} md={4}>
               <div className="chart-container">
                 <div className="chart-header">
@@ -616,7 +616,7 @@ return (
                   )}
                 </div>
               </div>
-            </Grid>
+            </Grid> */}
           </Grid>
           
           {/* Best Selling Products Table */}

@@ -21,6 +21,7 @@ import OrderManagement from './owner/OrderManagement';
 import EmployeeOrderManagement from './employee/EmployeeOrderMangement';  
 import CustomerOrderHistory from './customer/CustomerOrderHistory';
 import SalesReport from './owner/SalesReport';
+import MessageDashboard from './owner/MessageDashboard';
 
 
 
@@ -41,6 +42,7 @@ const App = () => {
       <Route path="/owner/edit-employee/:id" element={<EditEmployee />} />
       <Route path="/owner/order-management" element={<OrderManagement />} />
       <Route path="/owner/sales-report" element={<SalesReport />} />
+      <Route path="/owner/messages" element={<MessageDashboard />} />
       
       {/* Customer Routes */}
       <Route path="/customer/dashboard" element={<CustomerDashboard />} />

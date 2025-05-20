@@ -193,9 +193,23 @@ const handleExploreMenu = () => {
     setOpenRegisterModal(true);
   };
   
-  const handleContactOpen = () => {
-    setOpenContactModal(true);
-  };
+ const handleContactOpen = () => {
+  // Check if user is logged in
+  const userData = localStorage.getItem("user");
+  if (userData) {
+    try {
+      const user = JSON.parse(userData);
+      // Auto-fill the email field with logged in user's email
+      setContactEmail(user.user.email || '');
+      // Optionally auto-fill name field if you have username
+      setContactName(user.user.username || '');
+    } catch (err) {
+      console.error("Error parsing user data:", err);
+    }
+  }
+  
+  setOpenContactModal(true);
+};
   
   const handleLoginClose = () => {
     setOpenLoginModal(false);
@@ -282,13 +296,53 @@ const handleExploreMenu = () => {
       alert(err.message || 'Registration failed. Please try again.');
     }
   };
+ 
+  // Contact Modal
+const handleContactSubmit = async (e) => {
+  e.preventDefault();
   
-  const handleContactSubmit = (e) => {
-    e.preventDefault();
-    // This would connect to your backend API to send the contact message
-    alert(`Thank you for your message, ${contactName}! We will get back to you soon.`);
+  // Check if user is logged in
+  const userData = localStorage.getItem("user");
+  if (!userData) {
+    // Show registration prompt if not logged in
+    alert("Please register or login before sending a message.");
     handleContactClose();
-  };
+    handleRegisterOpen();
+    return;
+  }
+  
+  try {
+    const parsedUserData = JSON.parse(userData);
+    const token = localStorage.getItem("token");
+    
+    const response = await fetch('http://localhost:5000/api/messages/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        name: contactName,
+        email: contactEmail,
+        message: contactMessage
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to send message');
+    }
+    
+    // Clear form and show success message
+    setContactName('');
+    setContactEmail('');
+    setContactMessage('');
+    alert("Thank you for your message! We will get back to you soon.");
+    handleContactClose();
+  } catch (err) {
+    console.error('Error sending message:', err);
+    alert('Failed to send message. Please try again later.');
+  }
+};
 
   return (
     <Box className="landing-page">
@@ -914,6 +968,7 @@ const handleExploreMenu = () => {
           </ModalContent>
         </Fade>
       </Modal>
+
     </Box>
   );
 };

@@ -13,7 +13,8 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
-  Avatar
+  Avatar,
+  Badge
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -27,6 +28,7 @@ import {
   LocalCafe as LocalCafeIcon
 } from "@mui/icons-material";
 import "./sidebar.css";
+import { Email as EmailIcon } from '@mui/icons-material';
 
 // The width of the drawer
 const drawerWidth = 260;
@@ -92,6 +94,16 @@ const OwnerSidebar = ({ children }) => {
       icon: <BarChartIcon />,
       path: "/owner/sales-report",
       active: isActive("/owner/sales-report"),
+    },
+    {
+      text: "Customer Messages",
+      icon: (
+        <Badge badgeContent={0} color="error">
+          <EmailIcon />
+        </Badge>
+      ),
+      path: "/owner/messages",
+      active: isActive("/owner/messages"),
     }
   ];
 
@@ -157,6 +169,8 @@ const OwnerSidebar = ({ children }) => {
         </ListItem>
       </div>
     </div>
+    
+
   );
 
   return (
