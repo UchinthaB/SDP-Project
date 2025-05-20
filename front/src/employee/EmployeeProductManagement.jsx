@@ -309,11 +309,11 @@ const EmployeeProductManagement = () => {
     };
 
     const handleAddProduct = () => {
-        navigate("/owner/add-product");
+        navigate("/employee/add-product");
     };
 
     const handleEditProduct = (productId) => {
-        navigate(`/owner/edit-product/${productId}`);
+        navigate(`/employee/edit-product/${productId}`);
     };
 
     const handleDeleteConfirm = (productId) => {

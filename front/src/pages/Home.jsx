@@ -441,7 +441,7 @@ const Home = () => {
                       textShadow: '0 2px 10px rgba(0,0,0,0.3)'
                     }}
                   >
-                    Fresh & Healthy Juice Bar
+                    Juice Bar - University of Kelaniya
                   </Typography>
                   <Typography 
                     variant="h5" 
@@ -567,7 +567,7 @@ const Home = () => {
                           component="img"
                           height="250"
                           image={juiceBar.juice_bar_id === 1 
-                            ? "https://images.unsplash.com/photo-1622597467836-f3e6707e1ad7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" // Fresh tropical juice selection
+                            ? "https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" // Fresh juice glasses with fruits
                             : "https://images.unsplash.com/photo-1600271886742-f049cd451bba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" // Fruit juice bar counter
                           }
                           alt={juiceBar.name}
