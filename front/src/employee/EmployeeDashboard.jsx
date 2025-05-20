@@ -66,13 +66,7 @@ const EmployeeDashboard = () => {
                             <p>Coming soon - Manage customer orders</p>
                         </div>
                         
-                        <div className="action-card">
-                            <div className="card-icon reports-icon">
-                                <i className="fas fa-chart-line"></i>
-                            </div>
-                            <h3>Sales Reports</h3>
-                            <p>Coming soon - View sales and revenue reports</p>
-                        </div>
+                       
                     </div>
                 </div>
 
