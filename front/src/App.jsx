@@ -22,6 +22,8 @@ import EmployeeOrderManagement from './employee/EmployeeOrderMangement';
 import CustomerOrderHistory from './customer/CustomerOrderHistory';
 import SalesReport from './owner/SalesReport';
 import MessageDashboard from './owner/MessageDashboard';
+import EmployeeAddProduct from './employee/EmployeeAddProduct';
+import EmployeeEditProduct from './employee/EmployeeEditProduct';
 
 
 
@@ -55,6 +57,8 @@ const App = () => {
       <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
       <Route path="/employee/product-management" element={<EmployeeProductManagement />} />
       <Route path="/employee/order-management" element={<EmployeeOrderManagement />} />
+      <Route path="/employee/add-product" element={<EmployeeAddProduct />} />
+      <Route path="/employee/edit-product/:id" element={<EmployeeEditProduct />} />
       
       {/* Add other routes here */}
       
