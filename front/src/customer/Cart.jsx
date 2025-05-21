@@ -94,7 +94,7 @@ const Cart = () => {
       const userData = localStorage.getItem("user");
       
       if (!userData) {
-        navigate("/login");
+        navigate("/");
         return;
       }
       

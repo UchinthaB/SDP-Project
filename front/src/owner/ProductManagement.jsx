@@ -188,7 +188,7 @@ const ProductManagement = () => {
         // Check if user is logged in
         const userData = localStorage.getItem("user");
         if (!userData) {
-            navigate("/login");
+            navigate("/");
             return;
         }
 

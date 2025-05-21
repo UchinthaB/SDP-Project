@@ -37,7 +37,7 @@ const SignUp = () => {
       }
 
       setSuccess('Signup successful! You can now log in.')
-      setTimeout(() => navigate('/login'), 2000)
+      setTimeout(() => navigate('/'), 2000)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -93,7 +93,7 @@ const SignUp = () => {
         </Button>
       </form>
       <Typography variant="body2" sx={{ mt: 2 }}>
-        Already have an account? <a href="/login">Log In</a>
+        Already have an account? <a href="/">Log In</a>
       </Typography>
     </Box>
   )

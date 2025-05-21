@@ -130,7 +130,7 @@ const fetchOrders = async () => {
     const token = localStorage.getItem("token");
     
     if (!userData || !token) {
-      navigate("/login");
+      navigate("/");
       return;
     }
     

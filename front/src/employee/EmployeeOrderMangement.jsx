@@ -157,7 +157,7 @@ const EmployeeOrderManagement = () => {
     // Check if user is logged in
     const userData = localStorage.getItem("user");
     if (!userData) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 
@@ -432,7 +432,7 @@ const EmployeeOrderManagement = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/");
   };
 
   return (

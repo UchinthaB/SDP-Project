@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 
 import Home from './pages/Home';
 import SignUp from './pages/SignUp';
-import Login from './pages/Login';
 import Dashboard from './owner/dashboard';
 import ProductManagement from './owner/ProductManagement';
 import AddProduct from './owner/AddProduct';
@@ -32,7 +31,7 @@ const App = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/signup" element={<SignUp />} />
-      <Route path="/login" element={<Login />} />
+
       
       {/* Owner Routes */}
       <Route path="/owner/dashboard" element={<Dashboard />} />

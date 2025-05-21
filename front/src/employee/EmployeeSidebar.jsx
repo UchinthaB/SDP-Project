@@ -73,10 +73,10 @@ const EmployeeSidebar = ({ children }) => {
         setUser(parsedUser.user);
       } else {
         // Redirect to login if not employee
-        navigate("/login");
+        navigate("/");
       }
     } else {
-      navigate("/login");
+      navigate("/");
     }
   }, [navigate]);
 
