@@ -1,53 +1,93 @@
-import React from 'react';
-import { Button } from '@mui/material';
-import { Download as DownloadIcon } from '@mui/icons-material';
-import { format } from 'date-fns';
+import React, { useState } from 'react';
+import { Button, CircularProgress } from '@mui/material';
+import { CloudDownload } from '@mui/icons-material';
 
 const DownloadReportButton = ({ reportType, selectedDate }) => {
+  const [loading, setLoading] = useState(false);
+
   const handleDownload = async () => {
     try {
-      const token = localStorage.getItem('token');
+      setLoading(true);
+      const token = localStorage.getItem("token");
       
-      // Format date for API request
-      const formattedDate = format(new Date(selectedDate), 'yyyy-MM-dd');
-      
-      const response = await fetch(
-        `http://localhost:5000/api/reports/download/${reportType}?date=${formattedDate}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to download report');
+      if (!token) {
+        alert("You need to be logged in to download reports");
+        return;
       }
-
+      
+      // Create the URL for the PDF endpoint
+      const baseUrl = "http://localhost:5000/api/reports";
+      const url = `${baseUrl}/${reportType}/pdf?date=${selectedDate}`;
+      
+      // Make authenticated request
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        method: 'GET',
+      });
+      
+      if (!response.ok) {
+        // Convert non-ok responses to readable format
+        const errorText = await response.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.message || errorJson.error || 'Failed to download report');
+        } catch (e) {
+          throw new Error(errorText || 'Failed to download report');
+        }
+      }
+      
+      // Get the blob from the response
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `sales_report_${reportType}_${formattedDate}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      // Create a URL for the blob
+      const downloadUrl = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      
+      // Set the filename based on the response headers or default
+      const contentDisposition = response.headers.get('content-disposition');
+      let filename = `sales_report_${reportType}_${selectedDate}.pdf`;
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]*)"?/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      link.download = filename;
+      
+      // Trigger the download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(link);
+      
     } catch (error) {
       console.error('Error downloading report:', error);
-      alert('Failed to download report');
+      alert(`Error downloading report: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
-
+  
   return (
     <Button
-      variant="contained"
-      color="secondary"
-      startIcon={<DownloadIcon />}
+      variant="outlined"
+      color="primary"
       onClick={handleDownload}
+      startIcon={loading ? <CircularProgress size={18} /> : <CloudDownload />}
+      disabled={loading}
+      fullWidth
       sx={{ mt: 2 }}
     >
-      Download Report
+      {loading ? 'Downloading...' : 'Download PDF'}
     </Button>
   );
 };

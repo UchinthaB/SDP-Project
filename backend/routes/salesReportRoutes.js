@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const salesReportController = require("../controllers/salesReportController");
-const authenticateToken = require("../middleware/authMiddleware");
+import salesReportController from "../controllers/salesReportController.js";
+import {generatePdfReport} from "../controllers/salesReportController.js";
+import authenticateToken from "../middleware/authMiddleware.js";
 
 // Apply authentication middleware to all routes
 router.use(authenticateToken);
@@ -13,6 +14,7 @@ router.get("/monthly", salesReportController.getMonthlySalesReport);
 router.get("/custom", salesReportController.getCustomRangeSalesReport);
 
 // Download reports
-router.get("/download/:reportType", salesReportController.generatePdfReport);
+// PDF report routes
+router.get('/:reportType/pdf', salesReportController.generatePdfReport);
 
-module.exports = router;
+export default router;
