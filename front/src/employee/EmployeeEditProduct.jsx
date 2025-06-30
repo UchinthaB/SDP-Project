@@ -16,6 +16,10 @@ const EditProduct = () => {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
     const [user, setUser] = useState(null);
+    const [formErrors, setFormErrors] = useState({
+        productName: "",
+        productPrice: ""
+    });
 
     useEffect(() => {
         const fetchProductDetails = async () => {
@@ -49,7 +53,6 @@ const EditProduct = () => {
         }
     }, [id]);
 
-
     useEffect(() => {
         // Check if user is logged in and is an employee
         const userData = localStorage.getItem("user");
@@ -65,11 +68,63 @@ const EditProduct = () => {
         }
     
         setUser(user.user);
-      }, [navigate]);
+    }, [navigate]);
+
+    const validateProductName = (name) => {
+        if (!name.trim()) {
+            return "Product name is required";
+        } else if (/[^a-zA-Z\s]/.test(name)) {
+            return "Product name should only contain letters and spaces";
+        }
+        return "";
+    };
+
+    const validateProductPrice = (price) => {
+        if (!price) {
+            return "Product price is required";
+        } else if (isNaN(price) || parseFloat(price) <= 0) {
+            return "Price must be a positive number";
+        }
+        return "";
+    };
+
+    const handleProductNameChange = (e) => {
+        const value = e.target.value;
+        setProductName(value);
+        setFormErrors(prev => ({
+            ...prev,
+            productName: validateProductName(value)
+        }));
+    };
+
+    const handleProductPriceChange = (e) => {
+        const value = e.target.value;
+        setProductPrice(value);
+        setFormErrors(prev => ({
+            ...prev,
+            productPrice: validateProductPrice(value)
+        }));
+    };
+
+    const validateForm = () => {
+        const nameError = validateProductName(productName);
+        const priceError = validateProductPrice(productPrice);
+        
+        setFormErrors({
+            productName: nameError,
+            productPrice: priceError
+        });
+
+        return !nameError && !priceError;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+        
+        if (!validateForm()) {
+            return;
+        }
         
         try {
             const response = await fetch(`http://localhost:5000/api/products/update/${id}`, {
@@ -93,7 +148,6 @@ const EditProduct = () => {
 
             setSuccessMessage("Product updated successfully!");
             
-            // Redirect after a short delay
             setTimeout(() => {
                 navigate("/employee/product-management");
             }, 2000);
@@ -128,6 +182,7 @@ const EditProduct = () => {
             <div className="form-container">
                 <h1>Edit Product</h1>
                 {successMessage && <p className="success-message">{successMessage}</p>}
+                {error && <p className="error-message">{error}</p>}
 
                 <form onSubmit={handleSubmit} className="product-form">
                     <div className="form-group">
@@ -137,9 +192,13 @@ const EditProduct = () => {
                             id="productName"
                             name="productName"
                             value={productName}
-                            onChange={(e) => setProductName(e.target.value)}
+                            onChange={handleProductNameChange}
                             required
+                            className={formErrors.productName ? "is-invalid" : ""}
                         />
+                        {formErrors.productName && (
+                            <div className="invalid-feedback">{formErrors.productName}</div>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -160,10 +219,15 @@ const EditProduct = () => {
                             id="productPrice"
                             name="productPrice"
                             step="0.01"
+                            min="0.01"
                             value={productPrice}
-                            onChange={(e) => setProductPrice(e.target.value)}
+                            onChange={handleProductPriceChange}
                             required
+                            className={formErrors.productPrice ? "is-invalid" : ""}
                         />
+                        {formErrors.productPrice && (
+                            <div className="invalid-feedback">{formErrors.productPrice}</div>
+                        )}
                     </div>
 
                     <div className="form-group juice-bar-info">

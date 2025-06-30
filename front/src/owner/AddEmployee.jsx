@@ -10,78 +10,150 @@ const AddEmployee = () => {
         contactNumber: "",
         description: ""
     });
+    const [formErrors, setFormErrors] = useState({
+        username: "",
+        email: "",
+        password: "",
+        contactNumber: ""
+    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
 
-    // Add authentication check
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         const token = localStorage.getItem("token");
         
         if (!token || !user || user.user?.role !== "owner") {
-            // If not logged in or not an owner, redirect to login
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             navigate("/");
         }
     }, [navigate]);
 
+    const validateField = (name, value) => {
+        let error = "";
+        
+        switch (name) {
+            case "username":
+                if (!value.trim()) {
+                    error = "Name is required";
+                } else if (/[^a-zA-Z\s]/.test(value)) {
+                    error = "Name should not contain numbers or special characters";
+                }
+                break;
+            case "email":
+                if (!value.trim()) {
+                    error = "Email is required";
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                    error = "Please enter a valid email address";
+                }
+                break;
+            case "password":
+                if (!value.trim()) {
+                    error = "Password is required";
+                } else if (value.length < 8) {
+                    error = "Password must be at least 8 characters";
+                }
+                break;
+            case "contactNumber":
+                if (value && !/^[0-9+\- ]+$/.test(value)) {
+                    error = "Contact number should only contain numbers and + - symbols";
+                }
+                break;
+            default:
+                break;
+        }
+        
+        return error;
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
+        
+        // Validate the field as user types
+        const error = validateField(name, value);
+        
+        setFormErrors(prev => ({
+            ...prev,
+            [name]: error
+        }));
+        
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
     };  
     
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-        const response = await fetch("http://localhost:5000/api/employees/add", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(formData),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            // Handle specific error cases
-            if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-                throw new Error("Session expired. Please login again.");
+    const validateForm = () => {
+        const errors = {};
+        let isValid = true;
+        
+        // Validate all fields
+        Object.keys(formData).forEach(key => {
+            if (key !== "description") { // description is optional
+                const error = validateField(key, formData[key]);
+                if (error) {
+                    errors[key] = error;
+                    isValid = false;
+                }
             }
-            throw new Error(data.message || `Error: ${response.statusText}`);
-        }
-
-        setSuccessMessage("Employee added successfully!");
-        // Reset form
-        setFormData({
-            username: "",
-            email: "",
-            password: "",
-            contactNumber: "",
-            description: ""
         });
+        
+        setFormErrors(errors);
+        return isValid;
+    };
 
-        setTimeout(() => navigate("/owner/employee-management"), 2000);
-    } catch (err) {
-        console.error("Detailed error:", err);
-        setError(err.message || "An unexpected error occurred. Please try again.");
-    } finally {
-        setLoading(false);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+        
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch("http://localhost:5000/api/employees/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    throw new Error("Session expired. Please login again.");
+                }
+                throw new Error(data.message || `Error: ${response.statusText}`);
+            }
+
+            setSuccessMessage("Employee added successfully!");
+            setFormData({
+                username: "",
+                email: "",
+                password: "",
+                contactNumber: "",
+                description: ""
+            });
+
+            setTimeout(() => navigate("/owner/employee-management"), 2000);
+        } catch (err) {
+            console.error("Detailed error:", err);
+            setError(err.message || "An unexpected error occurred. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     }
-}
     
     return (
         <div className="employee-management-container">
@@ -111,12 +183,15 @@ const handleSubmit = async (e) => {
                             type="text"
                             id="username"
                             name="username"
-                            className="form-control"
+                            className={`form-control ${formErrors.username ? "is-invalid" : ""}`}
                             value={formData.username}
                             onChange={handleChange}
                             required
                             placeholder="Employee's full name"
                         />
+                        {formErrors.username && (
+                            <div className="invalid-feedback">{formErrors.username}</div>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -125,12 +200,15 @@ const handleSubmit = async (e) => {
                             type="email"
                             id="email"
                             name="email"
-                            className="form-control"
+                            className={`form-control ${formErrors.email ? "is-invalid" : ""}`}
                             value={formData.email}
                             onChange={handleChange}
                             required
                             placeholder="employee@example.com"
                         />
+                        {formErrors.email && (
+                            <div className="invalid-feedback">{formErrors.email}</div>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -139,12 +217,15 @@ const handleSubmit = async (e) => {
                             type="password"
                             id="password"
                             name="password"
-                            className="form-control"
+                            className={`form-control ${formErrors.password ? "is-invalid" : ""}`}
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            placeholder="Create a secure password"
+                            placeholder="Create a secure password (min 8 characters)"
                         />
+                        {formErrors.password && (
+                            <div className="invalid-feedback">{formErrors.password}</div>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -153,11 +234,14 @@ const handleSubmit = async (e) => {
                             type="tel"
                             id="contactNumber"
                             name="contactNumber"
-                            className="form-control"
+                            className={`form-control ${formErrors.contactNumber ? "is-invalid" : ""}`}
                             value={formData.contactNumber}
                             onChange={handleChange}
                             placeholder="Phone number (optional)"
                         />
+                        {formErrors.contactNumber && (
+                            <div className="invalid-feedback">{formErrors.contactNumber}</div>
+                        )}
                     </div>
 
                     <div className="form-group">
